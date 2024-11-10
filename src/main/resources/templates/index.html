@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Categories</title>
+</head>
+<body>
+    <!-- Navigation bar with login/logout link based on authentication status -->
+    <div style="text-align: right;">
+        <a th:if="${token == null}" th:href="@{/login}" style="color: blue;">Login</a>
+		<!-- Link to logout, including redirect URL to stay on the current page -->
+		<a th:if="${token != null}" th:href="@{/logout(redirectUrl=${currentUrl})}" style="color: blue;">Logout</a>
+    </div>
+
+    <h1>Categories</h1>
+    <p>Select a category to view available articles.</p>
+    
+    <!-- List of categories from the controller -->
+    <ul>
+        <li th:each="category : ${categories}">
+            <a th:href="@{/category/{name}(name=${category.name}, currency=${selectedCurrency ?: 'EUR'})}" th:text="${category.name}">Category Name</a>
+        </li>
+    </ul>
+</body>
+</html>

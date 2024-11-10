@@ -1,0 +1,27 @@
+<!DOCTYPE html><!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <!-- Enlace de navegación para volver a la página principal de categorías -->
+    <div style="text-align: right;">
+        <a href="/" style="color: blue;">&larr; Back to Categories</a>
+    </div>
+
+    <h1>Login</h1>
+    <p>Enter your credentials to log in and place bids on articles.</p>
+    
+    <!-- Formulario de login -->
+    <form th:action="@{/login}" method="post">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+        
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
+        
+        <button type="submit">Login</button>
+    </form>
+    <p th:if="${errorMessage}" th:text="${errorMessage}" style="color: red;"></p>
+</body>
+</html>

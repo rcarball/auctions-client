@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Articles in [[${categoryName}]]</title>
+</head>
+<body>
+    <!-- Top navigation with login/logout link -->
+    <div style="text-align: right;">
+        <a th:if="${token == null}" th:href="@{/login}" style="color: blue;">Login</a>
+		<!-- Link to logout, including redirect URL to stay on the current page -->
+		<a th:if="${token != null}" th:href="@{/logout(redirectUrl=${currentUrl})}" style="color: blue;">Logout</a>
+    </div>
+    <a href="/" style="color: blue;">&larr; Back to Categories</a>
+
+    <h1>Articles in [[${categoryName}]]</h1>
+    <p>Select an article to view more details.</p>
+
+    <!-- Currency selector form -->
+    <form th:action="@{/category/{name}(name=${categoryName})}" method="get">
+        <input type="hidden" name="name" th:value="${categoryName}" />
+        
+        <label for="currency">Currency:</label>
+        <select name="currency" id="currency" onchange="this.form.submit()">
+            <option value="EUR" th:selected="${selectedCurrency == 'EUR'}">EUR</option>
+            <option value="USD" th:selected="${selectedCurrency == 'USD'}">USD</option>
+            <option value="GBP" th:selected="${selectedCurrency == 'GBP'}">GBP</option>
+            <option value="JPY" th:selected="${selectedCurrency == 'JPY'}">JPY</option>
+        </select>
+    </form>
+
+    <!-- Article table with prices aligned to the right -->
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th class="price">Current Price</th>
+                <th class="price">Bids</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="article : ${articles}">
+                <td>
+                    <a th:href="@{/article/{id}(id=${article.id}, currency=${selectedCurrency})}" th:text="${article.title}">Article Title</a>
+                </td>
+                <td class="price" th:text="${#numbers.formatDecimal(article.currentPrice, 2, 2)} + ' ' + ${article.currency}"></td>
+                <td class="price" th:text="${article.bids}"></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
