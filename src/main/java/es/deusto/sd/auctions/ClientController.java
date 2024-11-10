@@ -15,12 +15,12 @@ import es.deusto.sd.auctions.dto.ArticleDTO;
 import es.deusto.sd.auctions.dto.CategoryDTO;
 import es.deusto.sd.auctions.dto.CredentialsDTO;
 
-public class ApiClient {
+public class ClientController {
     private static final String BASE_URL = "http://localhost:8081";
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
-    public ApiClient() {
+    public ClientController() {
         this.httpClient = HttpClient.newHttpClient();
         this.objectMapper = new ObjectMapper();
     }

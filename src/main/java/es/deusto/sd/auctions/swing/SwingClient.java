@@ -14,7 +14,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import es.deusto.sd.auctions.ApiClient;
+import es.deusto.sd.auctions.ClientController;
 import es.deusto.sd.auctions.dto.ArticleDTO;
 import es.deusto.sd.auctions.dto.CategoryDTO;
 import es.deusto.sd.auctions.dto.CredentialsDTO;
@@ -22,7 +22,7 @@ import es.deusto.sd.auctions.dto.CredentialsDTO;
 public class SwingClient extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    private final ApiClient apiClient;
+    private ClientController clientController;
     private String token;
     private String defaultEmail = "blackwidow@marvel.com";
     private String defaultPassword = "Bl@ckWid0w2023";
@@ -40,7 +40,7 @@ public class SwingClient extends JFrame {
     private static final String[] CURRENCIES = { "EUR", "USD", "GBP", "JPY" };
 
     public SwingClient() {
-        apiClient = new ApiClient();
+        clientController = new ClientController();
 
         // 1. Login dialog
         if (!performLogin()) {
@@ -167,7 +167,7 @@ public class SwingClient extends JFrame {
             CredentialsDTO credentials = new CredentialsDTO(email, password);
 
             try {
-                token = apiClient.login(credentials);
+                token = clientController.login(credentials);
                 return true;
             } catch (RuntimeException e) {
                 JOptionPane.showMessageDialog(this, "Login failed: " + e.getMessage());
@@ -180,7 +180,7 @@ public class SwingClient extends JFrame {
 
     private void performLogout() {
         try {
-            apiClient.logout(token);
+            clientController.logout(token);
             JOptionPane.showMessageDialog(this, "Logged out successfully.");
             System.exit(0);
         } catch (RuntimeException e) {
@@ -190,7 +190,7 @@ public class SwingClient extends JFrame {
 
     private void loadCategories() {
         try {
-            List<CategoryDTO> categories = apiClient.getAllCategories();
+            List<CategoryDTO> categories = clientController.getAllCategories();
             categoryList.setListData(categories.toArray(new CategoryDTO[0]));
         } catch (RuntimeException e) {
             JOptionPane.showMessageDialog(this, "Failed to load categories: " + e.getMessage());
@@ -203,7 +203,7 @@ public class SwingClient extends JFrame {
 
         if (selectedCategory != null) {
             try {
-                List<ArticleDTO> articles = apiClient.getArticlesByCategory(selectedCategory.name(), currency);
+                List<ArticleDTO> articles = clientController.getArticlesByCategory(selectedCategory.name(), currency);
                 DefaultTableModel model = (DefaultTableModel) jtbleArticles.getModel();
                 model.setRowCount(0);
 
@@ -225,7 +225,7 @@ public class SwingClient extends JFrame {
             Long articleId = (Long) jtbleArticles.getValueAt(selectedRow, 0);
 
             try {
-                ArticleDTO article = apiClient.getArticleDetails(articleId, currency);
+                ArticleDTO article = clientController.getArticleDetails(articleId, currency);
                 lblArticleTitle.setText(article.title());
                 lblArticlePrice.setText(formatPrice(article.currentPrice(), currency));
                 lblArticleBids.setText(String.valueOf(article.bids()));
@@ -246,7 +246,7 @@ public class SwingClient extends JFrame {
             Float bidAmount = ((Integer) spinBidAmount.getValue()).floatValue();
 
             try {
-                apiClient.makeBid(articleId, bidAmount, currency, token);
+                clientController.makeBid(articleId, bidAmount, currency, token);
                 JOptionPane.showMessageDialog(this, "Bid placed successfully!");
 
                 loadArticleDetails();

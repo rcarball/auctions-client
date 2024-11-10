@@ -5,7 +5,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import es.deusto.sd.auctions.ApiClient;
+import es.deusto.sd.auctions.ClientController;
 import es.deusto.sd.auctions.dto.ArticleDTO;
 import es.deusto.sd.auctions.dto.CategoryDTO;
 import es.deusto.sd.auctions.dto.CredentialsDTO;
@@ -13,7 +13,7 @@ import es.deusto.sd.auctions.dto.CredentialsDTO;
 public class ConsoleClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConsoleClient.class);
-	private final ApiClient apiClient = new ApiClient();
+	private ClientController clientController = new ClientController();
 	private String token;
 
 	private String defaultEmail = "blackwidow@marvel.com";
@@ -29,7 +29,7 @@ public class ConsoleClient {
 	private boolean performLogin() {
 		CredentialsDTO credentials = new CredentialsDTO(defaultEmail, defaultPassword);
 		try {
-			token = apiClient.login(credentials);
+			token = clientController.login(credentials);
 			logger.info("Login successful. Token: {}", token);
 			return true;
 		} catch (RuntimeException e) {
@@ -40,7 +40,7 @@ public class ConsoleClient {
 
 	private boolean loadCategories() {
 		try {
-			List<CategoryDTO> categories = apiClient.getAllCategories();
+			List<CategoryDTO> categories = clientController.getAllCategories();
 
 			if (categories.isEmpty()) {
 				logger.info("No categories found.");
@@ -57,14 +57,14 @@ public class ConsoleClient {
 	}
 
 	private boolean loadArticlesAndPlaceBid() {
-		List<CategoryDTO> categories = apiClient.getAllCategories();
+		List<CategoryDTO> categories = clientController.getAllCategories();
 		String categoryName = categories.get(0).name();
 		logger.info("Fetching articles for category: {}", categoryName);
 
 		List<ArticleDTO> articles;
 
 		try {
-			articles = apiClient.getArticlesByCategory(categoryName, "EUR");
+			articles = clientController.getArticlesByCategory(categoryName, "EUR");
 
 			if (articles.isEmpty()) {
 				logger.info("No articles found in category: {}", categoryName);
@@ -81,7 +81,7 @@ public class ConsoleClient {
 
 	private ArticleDTO loadArticleDetails(Long articleId) {
 		try {
-			ArticleDTO article = apiClient.getArticleDetails(articleId, "EUR");
+			ArticleDTO article = clientController.getArticleDetails(articleId, "EUR");
 			logger.info("Article Details - Title: {}, Current Price: {} {}, Bids: {}", article.title(),
 					article.currentPrice(), article.currency(), article.bids());
 			return article;
@@ -94,7 +94,7 @@ public class ConsoleClient {
 	private boolean placeBid(ArticleDTO article) {
 		Float bidAmount = article.currentPrice() + 1.0f;
 		try {
-			apiClient.makeBid(article.id(), bidAmount, article.currency(), token);
+			clientController.makeBid(article.id(), bidAmount, article.currency(), token);
 			logger.info("Bid placed successfully on article ID {} with amount {} {}", article.id(), bidAmount,
 					article.currency());
 			return true;
