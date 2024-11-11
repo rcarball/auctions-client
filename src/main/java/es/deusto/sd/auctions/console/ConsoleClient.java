@@ -95,8 +95,7 @@ public class ConsoleClient {
 		Float bidAmount = article.currentPrice() + 1.0f;
 		try {
 			clientController.makeBid(article.id(), bidAmount, article.currency(), token);
-			logger.info("Bid placed successfully on article ID {} with amount {} {}", article.id(), bidAmount,
-					article.currency());
+			logger.info("Bid placed successfully on article ID {} with amount {} {}", article.id(), bidAmount, article.currency());
 			return true;
 		} catch (RuntimeException e) {
 			logger.error("Failed to place bid: {}", e.getMessage());
