@@ -2,6 +2,7 @@ package es.deusto.sd.auctions.web;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,16 +12,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import es.deusto.sd.auctions.ClientController;
 import es.deusto.sd.auctions.dto.ArticleDTO;
 import es.deusto.sd.auctions.dto.CategoryDTO;
 import es.deusto.sd.auctions.dto.CredentialsDTO;
+import es.deusto.sd.auctions.external.AuctionsServiceProxy;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 public class WebClientController {
 
-    private final ClientController clientController = new ClientController();
+    @Autowired
+    private AuctionsServiceProxy auctionsServiceProxy;
+    
     private String token; // Stores the session token
     
     // Add current URL and token to all views
@@ -36,7 +39,7 @@ public class WebClientController {
         List<CategoryDTO> categories;
         
         try {
-            categories = clientController.getAllCategories();
+            categories = auctionsServiceProxy.getAllCategories();
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Failed to load categories: " + e.getMessage());
             return "index";
@@ -53,7 +56,7 @@ public class WebClientController {
         List<ArticleDTO> articles;
         
         try {
-            articles = clientController.getArticlesByCategory(name, currency);
+            articles = auctionsServiceProxy.getArticlesByCategory(name, currency);
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Failed to load articles for category: " + e.getMessage());
             return "category";
@@ -72,7 +75,7 @@ public class WebClientController {
         ArticleDTO article;
         
         try {
-            article = clientController.getArticleDetails(id, currency);
+            article = auctionsServiceProxy.getArticleDetails(id, currency);
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Failed to load article details: " + e.getMessage());
             return "article";
@@ -90,8 +93,7 @@ public class WebClientController {
                            @RequestParam(value = "currency", defaultValue = "EUR") String currency, 
                            Model model) {
         try {
-            clientController.makeBid(articleId, amount, currency, token);
-            
+            auctionsServiceProxy.makeBid(articleId, amount, currency, token);
             model.addAttribute("successMessage", "Bid placed successfully!");
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Failed to place bid: " + e.getMessage());
@@ -111,7 +113,7 @@ public class WebClientController {
                                Model model) {
         CredentialsDTO credentials = new CredentialsDTO(email, password);
         try {
-            token = clientController.login(credentials);
+            token = auctionsServiceProxy.login(credentials);
             return "redirect:/";
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Login failed: " + e.getMessage());
@@ -122,7 +124,7 @@ public class WebClientController {
     @GetMapping("/logout")
     public String performLogout(@RequestParam(value = "redirectUrl", defaultValue = "/") String redirectUrl, Model model) {
         try {
-            clientController.logout(token);
+            auctionsServiceProxy.logout(token);
             token = null; // Clear the token after logout
             model.addAttribute("successMessage", "Logout successful.");
         } catch (RuntimeException e) {

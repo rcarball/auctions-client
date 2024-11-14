@@ -14,15 +14,21 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import es.deusto.sd.auctions.ClientController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import es.deusto.sd.auctions.dto.ArticleDTO;
 import es.deusto.sd.auctions.dto.CategoryDTO;
 import es.deusto.sd.auctions.dto.CredentialsDTO;
+import es.deusto.sd.auctions.external.AuctionsServiceProxy;
 
+@Component
 public class SwingClient extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    private ClientController clientController;
+    @Autowired
+    private AuctionsServiceProxy auctionsServiceProxy;
+
     private String token;
     private String defaultEmail = "blackwidow@marvel.com";
     private String defaultPassword = "Bl@ckWid0w2023";
@@ -40,8 +46,6 @@ public class SwingClient extends JFrame {
     private static final String[] CURRENCIES = { "EUR", "USD", "GBP", "JPY" };
 
     public SwingClient() {
-        clientController = new ClientController();
-
         // 1. Login dialog
         if (!performLogin()) {
             System.exit(0);
@@ -167,7 +171,7 @@ public class SwingClient extends JFrame {
             CredentialsDTO credentials = new CredentialsDTO(email, password);
 
             try {
-                token = clientController.login(credentials);
+                token = auctionsServiceProxy.login(credentials);
                 return true;
             } catch (RuntimeException e) {
                 JOptionPane.showMessageDialog(this, "Login failed: " + e.getMessage());
@@ -180,7 +184,7 @@ public class SwingClient extends JFrame {
 
     private void performLogout() {
         try {
-            clientController.logout(token);
+            auctionsServiceProxy.logout(token);
             JOptionPane.showMessageDialog(this, "Logged out successfully.");
             System.exit(0);
         } catch (RuntimeException e) {
@@ -190,7 +194,7 @@ public class SwingClient extends JFrame {
 
     private void loadCategories() {
         try {
-            List<CategoryDTO> categories = clientController.getAllCategories();
+            List<CategoryDTO> categories = auctionsServiceProxy.getAllCategories();
             categoryList.setListData(categories.toArray(new CategoryDTO[0]));
         } catch (RuntimeException e) {
             JOptionPane.showMessageDialog(this, "Failed to load categories: " + e.getMessage());
@@ -203,7 +207,7 @@ public class SwingClient extends JFrame {
 
         if (selectedCategory != null) {
             try {
-                List<ArticleDTO> articles = clientController.getArticlesByCategory(selectedCategory.name(), currency);
+                List<ArticleDTO> articles = auctionsServiceProxy.getArticlesByCategory(selectedCategory.name(), currency);
                 DefaultTableModel model = (DefaultTableModel) jtbleArticles.getModel();
                 model.setRowCount(0);
 
@@ -225,7 +229,7 @@ public class SwingClient extends JFrame {
             Long articleId = (Long) jtbleArticles.getValueAt(selectedRow, 0);
 
             try {
-                ArticleDTO article = clientController.getArticleDetails(articleId, currency);
+                ArticleDTO article = auctionsServiceProxy.getArticleDetails(articleId, currency);
                 lblArticleTitle.setText(article.title());
                 lblArticlePrice.setText(formatPrice(article.currentPrice(), currency));
                 lblArticleBids.setText(String.valueOf(article.bids()));
@@ -246,7 +250,7 @@ public class SwingClient extends JFrame {
             Float bidAmount = ((Integer) spinBidAmount.getValue()).floatValue();
 
             try {
-                clientController.makeBid(articleId, bidAmount, currency, token);
+                auctionsServiceProxy.makeBid(articleId, bidAmount, currency, token);
                 JOptionPane.showMessageDialog(this, "Bid placed successfully!");
 
                 loadArticleDetails();
