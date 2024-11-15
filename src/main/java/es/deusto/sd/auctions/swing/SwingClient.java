@@ -30,19 +30,16 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import org.springframework.stereotype.Component;
-
 import es.deusto.sd.auctions.dto.Article;
 import es.deusto.sd.auctions.dto.Category;
 
-@Component
 public class SwingClient extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	private final SwingClientController controller;
 
-    private String defaultEmail = "blackwidow@marvel.com";
-    private String defaultPassword = "Bl@ckWid0w2023";
+	private String defaultEmail = "blackwidow@marvel.com";
+	private String defaultPassword = "Bl@ckWid0w2023";
 
 	private JLabel logoutLabel;
 	private JComboBox<String> currencyComboBox;
@@ -103,19 +100,43 @@ public class SwingClient extends JFrame {
 				}
 			}
 		});
+		
+		categoryList.setCellRenderer((list, value, index, isSelected, cellHasFocus) -> {
+			JLabel label = new JLabel(value.name());
+			label.setBackground(list.getBackground());
+			label.setOpaque(true);
+		
+			if (isSelected) {
+				label.setBackground(list.getSelectionBackground());
+				label.setForeground(list.getSelectionForeground());
+			}
+			
+			return label;
+		});
+		
 		JScrollPane categoryScrollPane = new JScrollPane(categoryList);
 		categoryScrollPane.setPreferredSize(new Dimension(200, getHeight()));
 		categoryScrollPane.setBorder(new TitledBorder("Categories"));
 		add(categoryScrollPane, BorderLayout.WEST);
 
 		// Articles Table
-		jtbleArticles = new JTable(new DefaultTableModel(new Object[] { "ID", "Title", "Current Price", "Bids" }, 0));
+		jtbleArticles = new JTable(new DefaultTableModel(new Object[] { "ID", "Title", "Current Price", "Bids" }, 0)) {
+			private static final long serialVersionUID = 1L;
+
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+		};
 		jtbleArticles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		jtbleArticles.getSelectionModel().addListSelectionListener(e -> {
 			if (!e.getValueIsAdjusting()) {
 				loadArticleDetails();
 			}
 		});
+		jtbleArticles.getColumnModel().getColumn(0).setMaxWidth(40);
+		jtbleArticles.getColumnModel().getColumn(1).setPreferredWidth(200);
+		jtbleArticles.getColumnModel().getColumn(3).setMaxWidth(40);
 
 		JScrollPane articleScrollPane = new JScrollPane(jtbleArticles);
 		articleScrollPane.setPreferredSize(new Dimension(600, getHeight()));
@@ -125,7 +146,7 @@ public class SwingClient extends JFrame {
 		// Article Details
 		JPanel jPanelArticleDetails = new JPanel(new GridLayout(5, 2, 10, 10));
 		jPanelArticleDetails.setBorder(new TitledBorder("Article Details"));
-		jPanelArticleDetails.setPreferredSize(new Dimension(224, getHeight())); // Remaining width
+		jPanelArticleDetails.setPreferredSize(new Dimension(300, getHeight())); // Remaining width
 
 		jPanelArticleDetails.add(new JLabel("Title:"));
 		lblArticleTitle = new JLabel();
@@ -197,10 +218,10 @@ public class SwingClient extends JFrame {
 	private void loadCategories() {
 		try {
 			List<Category> categories = controller.getCategories();
-			
+
 			SwingUtilities.invokeLater(() -> {
 				categoryList.setListData(categories.toArray(new Category[0]));
-			});			
+			});
 		} catch (RuntimeException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
@@ -213,15 +234,16 @@ public class SwingClient extends JFrame {
 		if (selectedCategory != null) {
 			try {
 				List<Article> articles = controller.getArticlesByCategory(selectedCategory.name(), currency);
-				
+
 				SwingUtilities.invokeLater(() -> {
 					DefaultTableModel model = (DefaultTableModel) jtbleArticles.getModel();
 					model.setRowCount(0);
-	
+
 					for (Article article : articles) {
-						model.addRow(new Object[] { article.id(), article.title(), formatPrice(article.currentPrice(), currency), article.bids() });
+						model.addRow(new Object[] { article.id(), article.title(),
+								formatPrice(article.currentPrice(), currency), article.bids() });
 					}
-                });
+				});
 			} catch (RuntimeException e) {
 				JOptionPane.showMessageDialog(this, e.getMessage());
 			}
@@ -237,7 +259,7 @@ public class SwingClient extends JFrame {
 
 			try {
 				Article article = controller.getArticleDetails(articleId, currency);
-				
+
 				SwingUtilities.invokeLater(() -> {
 					lblArticleTitle.setText(article.title());
 					lblArticlePrice.setText(formatPrice(article.currentPrice(), currency));
@@ -261,13 +283,17 @@ public class SwingClient extends JFrame {
 
 			try {
 				controller.placeBid(articleId, bidAmount, currency);
-				
+
 				SwingUtilities.invokeLater(() -> {
 					JOptionPane.showMessageDialog(this, "Bid placed successfully!");
 				});
-				
+
 				loadArticleDetails();
 				loadArticlesForCategory();
+
+				SwingUtilities.invokeLater(() -> {
+					jtbleArticles.setRowSelectionInterval(selectedRow, selectedRow);
+				});
 			} catch (RuntimeException e) {
 				JOptionPane.showMessageDialog(this, e.getMessage());
 			}
@@ -276,10 +302,10 @@ public class SwingClient extends JFrame {
 
 	private String formatPrice(float price, String currency) {
 		return switch (currency) {
-		case "USD" -> String.format("$ %.2f", price);
-		case "GBP" -> String.format("%.2f £", price);
-		case "JPY" -> String.format("¥ %.2f", price);
-		default -> String.format("%.2f €", price);
+				case "USD" -> String.format("$ %.2f", price);
+				case "GBP" -> String.format("%.2f £", price);
+				case "JPY" -> String.format("¥ %.2f", price);
+				default -> String.format("%.2f €", price);
 		};
 	}
 

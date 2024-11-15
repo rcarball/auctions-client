@@ -4,14 +4,12 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import es.deusto.sd.auctions.dto.Article;
 import es.deusto.sd.auctions.dto.Category;
 import es.deusto.sd.auctions.dto.Credentials;
 import es.deusto.sd.auctions.external.BasicServiceProxy;
 
-@Component
 public class ConsoleClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConsoleClient.class);
