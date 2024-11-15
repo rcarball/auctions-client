@@ -5,4 +5,4 @@
  */
 package es.deusto.sd.auctions.dto;
 
-public record CategoryDTO(String name) {}
+public record Category(String name) {}

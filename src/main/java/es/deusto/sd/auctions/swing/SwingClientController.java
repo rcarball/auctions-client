@@ -1,23 +1,23 @@
 package es.deusto.sd.auctions.swing;
 
-import es.deusto.sd.auctions.ApiClient;
-import es.deusto.sd.auctions.dto.ArticleDTO;
-import es.deusto.sd.auctions.dto.CategoryDTO;
-import es.deusto.sd.auctions.dto.CredentialsDTO;
+import es.deusto.sd.auctions.BasicServiceProxy;
+import es.deusto.sd.auctions.dto.Article;
+import es.deusto.sd.auctions.dto.Category;
+import es.deusto.sd.auctions.dto.Credentials;
 
 import java.util.List;
 
 public class SwingClientController {   
-	private ApiClient apiClient;
+	private BasicServiceProxy apiClient;
     private String token;
 
     public SwingClientController() {
-        this.apiClient = new ApiClient();
+        this.apiClient = new BasicServiceProxy();
     }
 
     public boolean login(String email, String password) {
         try {
-            CredentialsDTO credentials = new CredentialsDTO(email, password);
+            Credentials credentials = new Credentials(email, password);
             token = apiClient.login(credentials);
             return true;
         } catch (RuntimeException e) {
@@ -29,15 +29,15 @@ public class SwingClientController {
         apiClient.logout(token);
     }
 
-    public List<CategoryDTO> getCategories() {
+    public List<Category> getCategories() {
         return apiClient.getAllCategories();
     }
 
-    public List<ArticleDTO> getArticlesByCategory(String categoryName, String currency) {
+    public List<Article> getArticlesByCategory(String categoryName, String currency) {
         return apiClient.getArticlesByCategory(categoryName, currency);
     }
 
-    public ArticleDTO getArticleDetails(Long articleId, String currency) {
+    public Article getArticleDetails(Long articleId, String currency) {
         return apiClient.getArticleDetails(articleId, currency);
     }
 

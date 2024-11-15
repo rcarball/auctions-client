@@ -11,16 +11,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import es.deusto.sd.auctions.ApiClient;
-import es.deusto.sd.auctions.dto.ArticleDTO;
-import es.deusto.sd.auctions.dto.CategoryDTO;
-import es.deusto.sd.auctions.dto.CredentialsDTO;
+import es.deusto.sd.auctions.BasicServiceProxy;
+import es.deusto.sd.auctions.dto.Article;
+import es.deusto.sd.auctions.dto.Category;
+import es.deusto.sd.auctions.dto.Credentials;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 public class WebClientController {
 
-    private final ApiClient apiClient = new ApiClient();
+    private final BasicServiceProxy apiClient = new BasicServiceProxy();
     private String token; // Stores the session token
     
     // Add token to all views
@@ -37,7 +37,7 @@ public class WebClientController {
     
     @GetMapping("/")
     public String home(Model model, HttpServletRequest request) {
-        List<CategoryDTO> categories;
+        List<Category> categories;
         
         try {
             categories = apiClient.getAllCategories();
@@ -55,7 +55,7 @@ public class WebClientController {
     public String getCategoryArticles(@PathVariable("name") String name, 
                                       @RequestParam(value = "currency", defaultValue = "EUR") String currency, 
                                       Model model, HttpServletRequest request) {
-        List<ArticleDTO> articles;
+        List<Article> articles;
         
         try {
             articles = apiClient.getArticlesByCategory(name, currency);
@@ -75,7 +75,7 @@ public class WebClientController {
     public String getArticleDetails(@PathVariable("id") Long id, 
                                     @RequestParam(value = "currency", defaultValue = "EUR") String currency, 
                                     Model model, HttpServletRequest request) {       
-        ArticleDTO article;
+        Article article;
         
         try {
             article = apiClient.getArticleDetails(id, currency);
@@ -118,7 +118,7 @@ public class WebClientController {
     public String performLogin(@RequestParam("email") String email, 
                                @RequestParam("password") String password, 
                                Model model) {
-        CredentialsDTO credentials = new CredentialsDTO(email, password);
+        Credentials credentials = new Credentials(email, password);
         try {
             token = apiClient.login(credentials);
             return "redirect:/";

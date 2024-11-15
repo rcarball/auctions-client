@@ -5,16 +5,4 @@
  */
 package es.deusto.sd.auctions.dto;
 
-import java.util.Date;
-
-public record ArticleDTO(
-	    Long id,
-	    String title,
-	    Float initialPrice,
-	    Float currentPrice,
-	    Integer bids,
-	    Date auctionEnd,
-	    String categoryName,
-	    String ownerName,
-	    String currency
-	) {}
+public record Credentials(String email, String password) {}

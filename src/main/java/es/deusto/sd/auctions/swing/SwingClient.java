@@ -30,8 +30,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import es.deusto.sd.auctions.dto.ArticleDTO;
-import es.deusto.sd.auctions.dto.CategoryDTO;
+import es.deusto.sd.auctions.dto.Article;
+import es.deusto.sd.auctions.dto.Category;
 
 public class SwingClient extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -40,7 +40,7 @@ public class SwingClient extends JFrame {
 
 	private JLabel logoutLabel;
 	private JComboBox<String> currencyComboBox;
-	private JList<CategoryDTO> categoryList;
+	private JList<Category> categoryList;
 	private JTable jtbleArticles;
 	private JLabel lblArticleTitle;
 	private JLabel lblArticlePrice;
@@ -185,10 +185,10 @@ public class SwingClient extends JFrame {
 
 	private void loadCategories() {
 		try {
-			List<CategoryDTO> categories = controller.getCategories();
+			List<Category> categories = controller.getCategories();
 			
 			SwingUtilities.invokeLater(() -> {
-				categoryList.setListData(categories.toArray(new CategoryDTO[0]));
+				categoryList.setListData(categories.toArray(new Category[0]));
 			});			
 		} catch (RuntimeException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage());
@@ -196,18 +196,18 @@ public class SwingClient extends JFrame {
 	}
 
 	private void loadArticlesForCategory() {
-		CategoryDTO selectedCategory = categoryList.getSelectedValue();
+		Category selectedCategory = categoryList.getSelectedValue();
 		String currency = (String) currencyComboBox.getSelectedItem();
 
 		if (selectedCategory != null) {
 			try {
-				List<ArticleDTO> articles = controller.getArticlesByCategory(selectedCategory.name(), currency);
+				List<Article> articles = controller.getArticlesByCategory(selectedCategory.name(), currency);
 				
 				SwingUtilities.invokeLater(() -> {
 					DefaultTableModel model = (DefaultTableModel) jtbleArticles.getModel();
 					model.setRowCount(0);
 	
-					for (ArticleDTO article : articles) {
+					for (Article article : articles) {
 						model.addRow(new Object[] { article.id(), article.title(), formatPrice(article.currentPrice(), currency), article.bids() });
 					}
                 });
@@ -225,7 +225,7 @@ public class SwingClient extends JFrame {
 			Long articleId = (Long) jtbleArticles.getValueAt(selectedRow, 0);
 
 			try {
-				ArticleDTO article = controller.getArticleDetails(articleId, currency);
+				Article article = controller.getArticleDetails(articleId, currency);
 				
 				SwingUtilities.invokeLater(() -> {
 					lblArticleTitle.setText(article.title());

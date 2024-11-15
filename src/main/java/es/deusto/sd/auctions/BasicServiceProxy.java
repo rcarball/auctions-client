@@ -11,22 +11,22 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import es.deusto.sd.auctions.dto.ArticleDTO;
-import es.deusto.sd.auctions.dto.CategoryDTO;
-import es.deusto.sd.auctions.dto.CredentialsDTO;
+import es.deusto.sd.auctions.dto.Article;
+import es.deusto.sd.auctions.dto.Category;
+import es.deusto.sd.auctions.dto.Credentials;
 
-public class ApiClient {
+public class BasicServiceProxy {
     private static final String BASE_URL = "http://localhost:8081";
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
-    public ApiClient() {
+    public BasicServiceProxy() {
         this.httpClient = HttpClient.newHttpClient();
         this.objectMapper = new ObjectMapper();
     }
 
-    // Login method with CredentialsDTO
-    public String login(CredentialsDTO credentials) {
+    // Login method with Credentials    
+    public String login(Credentials credentials) {
         try {
             String credentialsJson = objectMapper.writeValueAsString(credentials);
 
@@ -70,7 +70,7 @@ public class ApiClient {
     }
 
     // Method to get all categories without needing a token parameter
-    public List<CategoryDTO> getAllCategories() {
+    public List<Category> getAllCategories() {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/auctions/categories"))
@@ -82,7 +82,7 @@ public class ApiClient {
 
             return switch (response.statusCode()) {
                 case 200 -> objectMapper.readValue(response.body(),
-                        objectMapper.getTypeFactory().constructCollectionType(List.class, CategoryDTO.class));
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, Category.class));
                 case 204 -> throw new RuntimeException("No Content: No categories found");
                 case 500 -> throw new RuntimeException("Internal server error while fetching categories");
                 default -> throw new RuntimeException("Failed to fetch categories with status code: " + response.statusCode());
@@ -93,7 +93,7 @@ public class ApiClient {
     }
     
     // Method to get articles by category name
-    public List<ArticleDTO> getArticlesByCategory(String categoryName, String currency) {
+    public List<Article> getArticlesByCategory(String categoryName, String currency) {
         try {
             // Encode the category name to handle spaces and special characters
             String encodedCategoryName = URLEncoder.encode(categoryName, StandardCharsets.UTF_8);
@@ -107,7 +107,7 @@ public class ApiClient {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             return switch (response.statusCode()) {
-                case 200 -> objectMapper.readValue(response.body(), objectMapper.getTypeFactory().constructCollectionType(List.class, ArticleDTO.class));
+                case 200 -> objectMapper.readValue(response.body(), objectMapper.getTypeFactory().constructCollectionType(List.class, Article.class));
                 case 204 -> throw new RuntimeException("No Content: Category has no articles");
                 case 400 -> throw new RuntimeException("Bad Request: Currency not supported");
                 case 404 -> throw new RuntimeException("Not Found: Category not found");
@@ -120,7 +120,7 @@ public class ApiClient {
     }
 
     // Method to get the details of a specific article by ID
-    public ArticleDTO getArticleDetails(Long articleId, String currency) {
+    public Article getArticleDetails(Long articleId, String currency) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/auctions/articles/" + articleId + "/details?currency=" + currency))
@@ -131,7 +131,7 @@ public class ApiClient {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             return switch (response.statusCode()) {
-                case 200 -> objectMapper.readValue(response.body(), ArticleDTO.class);
+                case 200 -> objectMapper.readValue(response.body(), Article.class);
                 case 400 -> throw new RuntimeException("Bad Request: Currency not supported");
                 case 404 -> throw new RuntimeException("Not Found: Article not found");
                 case 500 -> throw new RuntimeException("Internal server error while fetching article details");
