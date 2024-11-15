@@ -2,6 +2,7 @@ package es.deusto.sd.auctions.web;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,13 +15,14 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import es.deusto.sd.auctions.dto.Article;
 import es.deusto.sd.auctions.dto.Category;
 import es.deusto.sd.auctions.dto.Credentials;
-import es.deusto.sd.auctions.external.BasicServiceProxy;
+import es.deusto.sd.auctions.external.RestTemplateServiceProxy;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 public class WebClientController {
 
-    private final BasicServiceProxy auctionsServiceProxy = new BasicServiceProxy();
+    @Autowired
+    private RestTemplateServiceProxy auctionsServiceProxy;
     
     private String token; // Stores the session token
     

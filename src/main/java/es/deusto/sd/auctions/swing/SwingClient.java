@@ -38,6 +38,7 @@ public class SwingClient extends JFrame {
 
 	private final SwingClientController controller;
 
+	// Default login credentials
 	private String defaultEmail = "blackwidow@marvel.com";
 	private String defaultPassword = "Bl@ckWid0w2023";
 

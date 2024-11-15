@@ -3,16 +3,16 @@ package es.deusto.sd.auctions.swing;
 import es.deusto.sd.auctions.dto.Article;
 import es.deusto.sd.auctions.dto.Category;
 import es.deusto.sd.auctions.dto.Credentials;
-import es.deusto.sd.auctions.external.BasicServiceProxy;
+import es.deusto.sd.auctions.external.HttpServiceProxy;
 
 import java.util.List;
 
 public class SwingClientController {   
-	private BasicServiceProxy apiClient;
+	private HttpServiceProxy apiClient;
     private String token;
 
     public SwingClientController() {
-        this.apiClient = new BasicServiceProxy();
+        this.apiClient = new HttpServiceProxy();
     }
 
     public boolean login(String email, String password) {

@@ -15,12 +15,12 @@ import es.deusto.sd.auctions.dto.Article;
 import es.deusto.sd.auctions.dto.Category;
 import es.deusto.sd.auctions.dto.Credentials;
 
-public class BasicServiceProxy {
+public class HttpServiceProxy {
     private static final String BASE_URL = "http://localhost:8081";
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
-    public BasicServiceProxy() {
+    public HttpServiceProxy() {
         this.httpClient = HttpClient.newHttpClient();
         this.objectMapper = new ObjectMapper();
     }

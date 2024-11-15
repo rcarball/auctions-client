@@ -16,14 +16,14 @@ import es.deusto.sd.auctions.dto.Category;
 import es.deusto.sd.auctions.dto.Credentials;
 
 @Service
-public class AuctionsServiceProxy {
+public class RestTemplateServiceProxy {
 
     private final RestTemplate restTemplate;
 
     @Value("${api.base.url}")
     private String apiBaseUrl;
 
-    public AuctionsServiceProxy(RestTemplate restTemplate) {
+    public RestTemplateServiceProxy(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 

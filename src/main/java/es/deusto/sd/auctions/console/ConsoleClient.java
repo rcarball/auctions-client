@@ -8,12 +8,12 @@ import org.slf4j.LoggerFactory;
 import es.deusto.sd.auctions.dto.Article;
 import es.deusto.sd.auctions.dto.Category;
 import es.deusto.sd.auctions.dto.Credentials;
-import es.deusto.sd.auctions.external.BasicServiceProxy;
+import es.deusto.sd.auctions.external.HttpServiceProxy;
 
 public class ConsoleClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConsoleClient.class);
-	private final BasicServiceProxy auctionsServiceProxy = new BasicServiceProxy();
+	private final HttpServiceProxy auctionsServiceProxy = new HttpServiceProxy();
 	private String token;
 
 	private String defaultEmail = "blackwidow@marvel.com";
