@@ -30,13 +30,19 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.springframework.stereotype.Component;
+
 import es.deusto.sd.auctions.dto.Article;
 import es.deusto.sd.auctions.dto.Category;
 
+@Component
 public class SwingClient extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	private final SwingClientController controller;
+
+    private String defaultEmail = "blackwidow@marvel.com";
+    private String defaultPassword = "Bl@ckWid0w2023";
 
 	private JLabel logoutLabel;
 	private JComboBox<String> currencyComboBox;
@@ -87,6 +93,7 @@ public class SwingClient extends JFrame {
 		topPanel.add(logoutLabel, BorderLayout.EAST);
 		add(topPanel, BorderLayout.NORTH);
 
+		// Category List
 		categoryList = new JList<>();
 		categoryList.addListSelectionListener(new ListSelectionListener() {
 			@Override
@@ -101,6 +108,7 @@ public class SwingClient extends JFrame {
 		categoryScrollPane.setBorder(new TitledBorder("Categories"));
 		add(categoryScrollPane, BorderLayout.WEST);
 
+		// Articles Table
 		jtbleArticles = new JTable(new DefaultTableModel(new Object[] { "ID", "Title", "Current Price", "Bids" }, 0));
 		jtbleArticles.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		jtbleArticles.getSelectionModel().addListSelectionListener(e -> {
@@ -114,6 +122,7 @@ public class SwingClient extends JFrame {
 		articleScrollPane.setBorder(new TitledBorder("Articles of the selected Category"));
 		add(articleScrollPane, BorderLayout.CENTER);
 
+		// Article Details
 		JPanel jPanelArticleDetails = new JPanel(new GridLayout(5, 2, 10, 10));
 		jPanelArticleDetails.setBorder(new TitledBorder("Article Details"));
 		jPanelArticleDetails.setPreferredSize(new Dimension(224, getHeight())); // Remaining width
@@ -155,7 +164,9 @@ public class SwingClient extends JFrame {
 
 	private boolean performLogin() {
 		JTextField emailField = new JTextField(20);
+		emailField.setText(defaultEmail);
 		JPasswordField passwordField = new JPasswordField(20);
+		passwordField.setText(defaultPassword);
 
 		Object[] message = { new JLabel("Enter Email:"), emailField, new JLabel("Enter Password:"), passwordField };
 

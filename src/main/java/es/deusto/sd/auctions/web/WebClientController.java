@@ -11,28 +11,25 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import es.deusto.sd.auctions.BasicServiceProxy;
 import es.deusto.sd.auctions.dto.Article;
 import es.deusto.sd.auctions.dto.Category;
 import es.deusto.sd.auctions.dto.Credentials;
+import es.deusto.sd.auctions.external.BasicServiceProxy;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 public class WebClientController {
 
-    private final BasicServiceProxy apiClient = new BasicServiceProxy();
+    private final BasicServiceProxy auctionsServiceProxy = new BasicServiceProxy();
+    
     private String token; // Stores the session token
     
-    // Add token to all views
+    // Add current URL and token to all views
     @ModelAttribute
-    public void addAttributes(Model model) {
-        model.addAttribute("token", token); // Makes token available in all templates
-    }
-    
-    // Helper method to add current URL to the model
-    private void addCurrentUrl(Model model, HttpServletRequest request) {
+    public void addAttributes(Model model, HttpServletRequest request) {
         String currentUrl = ServletUriComponentsBuilder.fromRequestUri(request).toUriString();
-        model.addAttribute("currentUrl", currentUrl);
+        model.addAttribute("currentUrl", currentUrl); // Makes current URL available in all templates
+        model.addAttribute("token", token); // Makes token available in all templates
     }
     
     @GetMapping("/")
@@ -40,13 +37,12 @@ public class WebClientController {
         List<Category> categories;
         
         try {
-            categories = apiClient.getAllCategories();
+            categories = auctionsServiceProxy.getAllCategories();
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Failed to load categories: " + e.getMessage());
             return "index";
         }
         
-        addCurrentUrl(model, request); // Add current URL to model
         model.addAttribute("categories", categories);
         return "index";
     }
@@ -58,13 +54,12 @@ public class WebClientController {
         List<Article> articles;
         
         try {
-            articles = apiClient.getArticlesByCategory(name, currency);
+            articles = auctionsServiceProxy.getArticlesByCategory(name, currency);
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Failed to load articles for category: " + e.getMessage());
             return "category";
         }
         
-        addCurrentUrl(model, request); // Add current URL to model
         model.addAttribute("articles", articles);
         model.addAttribute("categoryName", name);
         model.addAttribute("selectedCurrency", currency);
@@ -78,13 +73,12 @@ public class WebClientController {
         Article article;
         
         try {
-            article = apiClient.getArticleDetails(id, currency);
+            article = auctionsServiceProxy.getArticleDetails(id, currency);
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Failed to load article details: " + e.getMessage());
             return "article";
         }
         
-        addCurrentUrl(model, request); // Add current URL to model
         model.addAttribute("article", article);
         model.addAttribute("categoryName", article.categoryName());
         model.addAttribute("selectedCurrency", currency);
@@ -95,11 +89,9 @@ public class WebClientController {
     public String placeBid(@RequestParam("articleId") Long articleId, 
                            @RequestParam("amount") Float amount, 
                            @RequestParam(value = "currency", defaultValue = "EUR") String currency, 
-                           Model model, HttpServletRequest request) {
+                           Model model) {
         try {
-            apiClient.makeBid(articleId, amount, currency, token);
-            
-            addCurrentUrl(model, request); // Add current URL to model
+            auctionsServiceProxy.makeBid(articleId, amount, currency, token);
             model.addAttribute("successMessage", "Bid placed successfully!");
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Failed to place bid: " + e.getMessage());
@@ -109,8 +101,7 @@ public class WebClientController {
     }
 
     @GetMapping("/login")
-    public String showLoginPage(Model model, HttpServletRequest request) {
-        addCurrentUrl(model, request); // Add current URL to model
+    public String showLoginPage(Model model) {
         return "login";
     }
     
@@ -120,7 +111,7 @@ public class WebClientController {
                                Model model) {
         Credentials credentials = new Credentials(email, password);
         try {
-            token = apiClient.login(credentials);
+            token = auctionsServiceProxy.login(credentials);
             return "redirect:/";
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Login failed: " + e.getMessage());
@@ -131,7 +122,7 @@ public class WebClientController {
     @GetMapping("/logout")
     public String performLogout(@RequestParam(value = "redirectUrl", defaultValue = "/") String redirectUrl, Model model) {
         try {
-            apiClient.logout(token);
+            auctionsServiceProxy.logout(token);
             token = null; // Clear the token after logout
             model.addAttribute("successMessage", "Logout successful.");
         } catch (RuntimeException e) {

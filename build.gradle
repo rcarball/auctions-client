@@ -24,27 +24,32 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 }
 
-// Task to run the console client
+// Task to run the console client within Spring Boot
+// Task to run the console client as a Spring Boot application
 task runConsole(type: JavaExec) {
     group = 'application'
-    description = 'Run the console client'
-    mainClass = 'es.deusto.sd.auctions.console.ConsoleClient'
+    description = 'Run the ConsoleClientApplication'
+    mainClass = 'es.deusto.sd.auctions.console.ConsoleClientApplication'
     classpath = sourceSets.main.runtimeClasspath
 }
 
-// Task to run the Swing client
+// Task to run the Swing client within Spring Boot
 task runSwing(type: JavaExec) {
     group = 'application'
     description = 'Run the Swing client'
-    mainClass = 'es.deusto.sd.auctions.swing.SwingClient'
+    mainClass = 'org.springframework.boot.loader.JarLauncher'
     classpath = sourceSets.main.runtimeClasspath
+    args = ['--spring.main.web-application-type=none', 
+            '--spring.main.allow-bean-definition-overriding=true']
+    systemProperties = System.properties
+    jvmArgs = ['-Dspring.main.web-application-type=none']
 }
 
 // Task to run the web client with Thymeleaf
 task runWeb(type: JavaExec) {
     group = 'application'
     description = 'Run the Thymeleaf web client'
-    mainClass = 'es.deusto.sd.auctions.web.WebClientApplication'
+    mainClass = 'org.springframework.boot.loader.JarLauncher'
     classpath = sourceSets.main.runtimeClasspath
 }
 

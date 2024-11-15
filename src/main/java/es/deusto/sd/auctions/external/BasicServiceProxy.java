@@ -1,4 +1,4 @@
-package es.deusto.sd.auctions;
+package es.deusto.sd.auctions.external;
 
 import java.io.IOException;
 import java.net.URI;

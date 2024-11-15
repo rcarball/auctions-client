@@ -1,9 +1,9 @@
 package es.deusto.sd.auctions.swing;
 
-import es.deusto.sd.auctions.BasicServiceProxy;
 import es.deusto.sd.auctions.dto.Article;
 import es.deusto.sd.auctions.dto.Category;
 import es.deusto.sd.auctions.dto.Credentials;
+import es.deusto.sd.auctions.external.BasicServiceProxy;
 
 import java.util.List;
 

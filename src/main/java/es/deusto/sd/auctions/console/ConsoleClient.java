@@ -4,16 +4,18 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-import es.deusto.sd.auctions.BasicServiceProxy;
 import es.deusto.sd.auctions.dto.Article;
 import es.deusto.sd.auctions.dto.Category;
 import es.deusto.sd.auctions.dto.Credentials;
+import es.deusto.sd.auctions.external.BasicServiceProxy;
 
+@Component
 public class ConsoleClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConsoleClient.class);
-	private final BasicServiceProxy apiClient = new BasicServiceProxy();
+	private final BasicServiceProxy auctionsServiceProxy = new BasicServiceProxy();
 	private String token;
 
 	private String defaultEmail = "blackwidow@marvel.com";
@@ -26,10 +28,10 @@ public class ConsoleClient {
 		}
 	}
 
-	private boolean performLogin() {
+	public boolean performLogin() {
 		Credentials credentials = new Credentials(defaultEmail, defaultPassword);
 		try {
-			token = apiClient.login(credentials);
+			token = auctionsServiceProxy.login(credentials);
 			logger.info("Login successful. Token: {}", token);
 			return true;
 		} catch (RuntimeException e) {
@@ -38,33 +40,30 @@ public class ConsoleClient {
 		}
 	}
 
-	private boolean loadCategories() {
+	public boolean loadCategories() {
 		try {
-			List<Category> categories = apiClient.getAllCategories();
-
-			if (categories.isEmpty()) {
+			List<Category> categories = auctionsServiceProxy.getAllCategories();
+			if (categories == null || categories.isEmpty()) {
 				logger.info("No categories found.");
 				return false;
 			}
-
-			logger.info("Categories retrieved:");
-			categories.forEach(category -> logger.info("- {}", category.name()));
+			categories.forEach(category -> logger.info("Category: {}", category.name()));
 			return true;
 		} catch (RuntimeException e) {
 			logger.error("Failed to load categories: {}", e.getMessage());
-			return false;
 		}
+		return false;
 	}
 
-	private boolean loadArticlesAndPlaceBid() {
-		List<Category> categories = apiClient.getAllCategories();
+	public boolean loadArticlesAndPlaceBid() {
+		List<Category> categories = auctionsServiceProxy.getAllCategories();
 		String categoryName = categories.get(0).name();
 		logger.info("Fetching articles for category: {}", categoryName);
 
 		List<Article> articles;
 
 		try {
-			articles = apiClient.getArticlesByCategory(categoryName, "EUR");
+			articles = auctionsServiceProxy.getArticlesByCategory(categoryName, "EUR");
 
 			if (articles.isEmpty()) {
 				logger.info("No articles found in category: {}", categoryName);
@@ -79,9 +78,9 @@ public class ConsoleClient {
 		}
 	}
 
-	private Article loadArticleDetails(Long articleId) {
+	public Article loadArticleDetails(Long articleId) {
 		try {
-			Article article = apiClient.getArticleDetails(articleId, "EUR");
+			Article article = auctionsServiceProxy.getArticleDetails(articleId, "EUR");
 			logger.info("Article Details - Title: {}, Current Price: {} {}, Bids: {}", article.title(),
 					article.currentPrice(), article.currency(), article.bids());
 			return article;
@@ -91,10 +90,10 @@ public class ConsoleClient {
 		}
 	}
 
-	private boolean placeBid(Article article) {
+	public boolean placeBid(Article article) {
 		Float bidAmount = article.currentPrice() + 1.0f;
 		try {
-			apiClient.makeBid(article.id(), bidAmount, article.currency(), token);
+			auctionsServiceProxy.makeBid(article.id(), bidAmount, article.currency(), token);
 			logger.info("Bid placed successfully on article ID {} with amount {} {}", article.id(), bidAmount,
 					article.currency());
 			return true;
