@@ -30,8 +30,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import es.deusto.sd.auctions.dto.Article;
-import es.deusto.sd.auctions.dto.Category;
+import es.deusto.sd.auctions.Article;
+import es.deusto.sd.auctions.Category;
 
 public class SwingClient extends JFrame {
 	private static final long serialVersionUID = 1L;

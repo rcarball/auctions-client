@@ -11,9 +11,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import es.deusto.sd.auctions.dto.Article;
-import es.deusto.sd.auctions.dto.Category;
-import es.deusto.sd.auctions.dto.Credentials;
+import es.deusto.sd.auctions.Article;
+import es.deusto.sd.auctions.Category;
+import es.deusto.sd.auctions.Credentials;
 
 @Service
 public class RestTemplateServiceProxy {

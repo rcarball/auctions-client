@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import es.deusto.sd.auctions.dto.Article;
-import es.deusto.sd.auctions.dto.Category;
-import es.deusto.sd.auctions.dto.Credentials;
+import es.deusto.sd.auctions.Article;
+import es.deusto.sd.auctions.Category;
+import es.deusto.sd.auctions.Credentials;
 import es.deusto.sd.auctions.external.RestTemplateServiceProxy;
 import jakarta.servlet.http.HttpServletRequest;
 

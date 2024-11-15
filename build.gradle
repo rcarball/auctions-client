@@ -40,14 +40,6 @@ task runSwingClient(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
-// Task to run the web client with Thymeleaf
-task runWebClient(type: JavaExec) {
-    group = 'application'
-    description = 'Run the Thymeleaf web client'
-    mainClass = 'org.springframework.boot.loader.JarLauncher'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
 // Spring Boot configuration, defaults to running the web client
 bootRun {
     mainClass.set("es.deusto.sd.auctions.web.WebClientApplication")
