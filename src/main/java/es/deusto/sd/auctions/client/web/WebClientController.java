@@ -1,4 +1,9 @@
-package es.deusto.sd.auctions.web;
+/**
+ * This code is based on solutions provided by Claude Sonnet 3.5 and 
+ * adapted using GitHub Copilot. It has been thoroughly reviewed 
+ * and validated to ensure correctness and that it is free of errors.
+ */
+package es.deusto.sd.auctions.client.web;
 
 import java.util.List;
 
@@ -12,12 +17,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import es.deusto.sd.auctions.Article;
-import es.deusto.sd.auctions.Category;
-import es.deusto.sd.auctions.Credentials;
-import es.deusto.sd.auctions.external.RestTemplateServiceProxy;
+import es.deusto.sd.auctions.client.Article;
+import es.deusto.sd.auctions.client.Category;
+import es.deusto.sd.auctions.client.Credentials;
+import es.deusto.sd.auctions.client.external.RestTemplateServiceProxy;
 import jakarta.servlet.http.HttpServletRequest;
 
+/**
+ * WebClientController class is the Spring Boot controller for the web client application.
+ */
 @Controller
 public class WebClientController {
 

@@ -1,21 +1,32 @@
-package es.deusto.sd.auctions.console;
+/**
+ * This code is based on solutions provided by Claude Sonnet 3.5 and 
+ * adapted using GitHub Copilot. It has been thoroughly reviewed 
+ * and validated to ensure correctness and that it is free of errors.
+ */
+package es.deusto.sd.auctions.client.console;
 
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import es.deusto.sd.auctions.Article;
-import es.deusto.sd.auctions.Category;
-import es.deusto.sd.auctions.Credentials;
-import es.deusto.sd.auctions.external.HttpServiceProxy;
+import es.deusto.sd.auctions.client.Article;
+import es.deusto.sd.auctions.client.Category;
+import es.deusto.sd.auctions.client.Credentials;
+import es.deusto.sd.auctions.client.external.HttpServiceProxy;
 
+/**
+ * ConsoleClient class is a simple console-based client that demonstrates the
+ * usage of the AuctionsService using the HttpServiceProxy.
+ */
 public class ConsoleClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConsoleClient.class);
-	private final HttpServiceProxy auctionsServiceProxy = new HttpServiceProxy();
+	private final HttpServiceProxy serviceProxy = new HttpServiceProxy();
+	
+	// Token to be used during the session
 	private String token;
-
+	// Default email and password for login
 	private String defaultEmail = "blackwidow@marvel.com";
 	private String defaultPassword = "Bl@ckWid0w2023";
 
@@ -31,7 +42,7 @@ public class ConsoleClient {
 		try {
 			Credentials credentials = new Credentials(defaultEmail, defaultPassword);
 
-			token = auctionsServiceProxy.login(credentials);
+			token = serviceProxy.login(credentials);
 			logger.info("Login successful. Token: {}", token);
 
 			return true;
@@ -44,7 +55,7 @@ public class ConsoleClient {
 
 	public boolean loadCategories() {
 		try {
-			List<Category> categories = auctionsServiceProxy.getAllCategories();
+			List<Category> categories = serviceProxy.getAllCategories();
 			
 			if (categories == null || categories.isEmpty()) {
 				logger.info("No categories found.");
@@ -63,11 +74,11 @@ public class ConsoleClient {
 
 	public boolean loadArticlesAndPlaceBid() {
 		try {
-			List<Category> categories = auctionsServiceProxy.getAllCategories();
+			List<Category> categories = serviceProxy.getAllCategories();
 			String categoryName = categories.get(0).name();
 			
 			logger.info("Fetching articles for category: {}", categoryName);
-			List<Article> articles = auctionsServiceProxy.getArticlesByCategory(categoryName, "EUR");
+			List<Article> articles = serviceProxy.getArticlesByCategory(categoryName, "EUR");
 
 			if (articles.isEmpty()) {
 				logger.info("No articles found in category: {}", categoryName);
@@ -85,7 +96,7 @@ public class ConsoleClient {
 
 	public Article loadArticleDetails(Long articleId) {
 		try {
-			Article article = auctionsServiceProxy.getArticleDetails(articleId, "EUR");
+			Article article = serviceProxy.getArticleDetails(articleId, "EUR");
 			logger.info("Article Details - Title: {}, Current Price: {} {}, Bids: {}", article.title(), article.currentPrice(), article.currency(), article.bids());
 			
 			return article;
@@ -99,7 +110,7 @@ public class ConsoleClient {
 		try {
 			Float bidAmount = article.currentPrice() + 1.0f;
 			
-			auctionsServiceProxy.makeBid(article.id(), bidAmount, article.currency(), token);
+			serviceProxy.makeBid(article.id(), bidAmount, article.currency(), token);
 			logger.info("Bid placed successfully on article ID {} with amount {} {}", article.id(), bidAmount, article.currency());
 			
 			return true;

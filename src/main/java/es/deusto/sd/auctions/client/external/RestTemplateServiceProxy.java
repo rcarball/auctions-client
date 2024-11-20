@@ -1,4 +1,9 @@
-package es.deusto.sd.auctions.external;
+/**
+ * This code is based on solutions provided by Claude Sonnet 3.5 and 
+ * adapted using GitHub Copilot. It has been thoroughly reviewed 
+ * and validated to ensure correctness and that it is free of errors.
+ */
+package es.deusto.sd.auctions.client.external;
 
 import java.util.List;
 
@@ -11,15 +16,20 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import es.deusto.sd.auctions.Article;
-import es.deusto.sd.auctions.Category;
-import es.deusto.sd.auctions.Credentials;
+import es.deusto.sd.auctions.client.Article;
+import es.deusto.sd.auctions.client.Category;
+import es.deusto.sd.auctions.client.Credentials;
 
+/**
+ * RestTemplateServiceProxy class is a ServiceProxy class that communicates with
+ * the AuctionsService using SpringBoot RestTemplate. It is implementes as a Spring Boot Service.
+ */
 @Service
 public class RestTemplateServiceProxy {
 
     private final RestTemplate restTemplate;
 
+    // API base URL is injected from application.properties
     @Value("${api.base.url}")
     private String apiBaseUrl;
 
@@ -29,9 +39,11 @@ public class RestTemplateServiceProxy {
 
     public String login(Credentials credentials) {
         String url = apiBaseUrl + "/auth/login";
+        
         try {
             HttpEntity<Credentials> request = new HttpEntity<>(credentials);
             ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+            
             return response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
@@ -46,6 +58,7 @@ public class RestTemplateServiceProxy {
 
     public void logout(String token) {
         String url = apiBaseUrl + "/auth/logout";
+        
         try {
             HttpEntity<String> request = new HttpEntity<>(token);
             restTemplate.postForEntity(url, request, Void.class);
@@ -60,11 +73,14 @@ public class RestTemplateServiceProxy {
         }
     }
 
+    // This annotation is used to suppress unchecked warnings
     @SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<Category> getAllCategories() {
         String url = apiBaseUrl + "/auctions/categories";
+        
         try {
             ResponseEntity<List> response = restTemplate.getForEntity(url, List.class);
+            
             return response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NO_CONTENT) {
@@ -77,11 +93,14 @@ public class RestTemplateServiceProxy {
         }
     }
 
+    // This annotation is used to suppress unchecked warnings
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public List<Article> getArticlesByCategory(String categoryName, String currency) {
         String url = apiBaseUrl + "/auctions/categories/" + categoryName + "/articles?currency=" + currency;
+        
         try {
             ResponseEntity<List> response = restTemplate.getForEntity(url, List.class);
+            
             return response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
@@ -98,8 +117,10 @@ public class RestTemplateServiceProxy {
 
     public Article getArticleDetails(Long articleId, String currency) {
         String url = apiBaseUrl + "/auctions/articles/" + articleId + "/details?currency=" + currency;
+        
         try {
             ResponseEntity<Article> response = restTemplate.getForEntity(url, Article.class);
+            
             return response.getBody();
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
@@ -116,6 +137,7 @@ public class RestTemplateServiceProxy {
 
     public void makeBid(Long articleId, double amount, String currency, String token) {
         String url = apiBaseUrl + "/auctions/articles/" + articleId + "/bid?amount=" + amount + "&currency=" + currency;
+        
         try {
             HttpEntity<String> request = new HttpEntity<>(token);
             restTemplate.postForEntity(url, request, Void.class);

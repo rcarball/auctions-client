@@ -1,10 +1,18 @@
-package es.deusto.sd.auctions.web;
+/**
+ * This code is based on solutions provided by Claude Sonnet 3.5 and 
+ * adapted using GitHub Copilot. It has been thoroughly reviewed 
+ * and validated to ensure correctness and that it is free of errors.
+ */
+package es.deusto.sd.auctions.client.web;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * WebClientApplication class is the main class for the web client application.
+ */
 @SpringBootApplication(scanBasePackages = {"es.deusto.sd.auctions"})
 public class WebClientApplication {
 

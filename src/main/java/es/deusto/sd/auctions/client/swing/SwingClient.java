@@ -1,4 +1,9 @@
-package es.deusto.sd.auctions.swing;
+/**
+ * This code is based on solutions provided by Claude Sonnet 3.5 and 
+ * adapted using GitHub Copilot. It has been thoroughly reviewed 
+ * and validated to ensure correctness and that it is free of errors.
+ */
+package es.deusto.sd.auctions.client.swing;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,12 +35,17 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import es.deusto.sd.auctions.Article;
-import es.deusto.sd.auctions.Category;
+import es.deusto.sd.auctions.client.Article;
+import es.deusto.sd.auctions.client.Category;
 
+/**
+ * SwingClient class is a Swing-based client that demonstrates the usage of the
+ * AuctionsService. It is implemented using a classic Controller pattern.
+ */
 public class SwingClient extends JFrame {
 	private static final long serialVersionUID = 1L;
 
+	// Controller instance
 	private final SwingClientController controller;
 
 	// Default login credentials
