@@ -2,23 +2,38 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Categories</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <!-- Navigation bar with login/logout link based on authentication status -->
-    <div style="text-align: right;">
-        <a th:if="${token == null}" th:href="@{/login}" style="color: blue;">Login</a>
-		<!-- Link to logout, including redirect URL to stay on the current page -->
-		<a th:if="${token != null}" th:href="@{/logout(redirectUrl=${currentUrl})}" style="color: blue;">Logout</a>
-    </div>
+<body class="bg-light">
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-light bg-white shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Auction App</a>
+            <div>
+                <a th:if="${token == null}" th:href="@{/login}" class="btn btn-primary btn-sm">Login</a>
+                <a th:if="${token != null}" th:href="@{/logout(redirectUrl=${currentUrl})}" class="btn btn-danger btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
 
-    <h1>Categories</h1>
-    <p>Select a category to view available articles.</p>
-    
-    <!-- List of categories from the controller -->
-    <ul>
-        <li th:each="category : ${categories}">
-            <a th:href="@{/category/{name}(name=${category.name}, currency=${selectedCurrency ?: 'EUR'})}" th:text="${category.name}">Category Name</a>
-        </li>
-    </ul>
+    <div class="container mt-4">
+        <h1>Categories</h1>
+        <p>Select a category to view available articles.</p>
+
+        <!-- Lista de categorías -->
+        <div class="list-group">
+            <li th:each="category : ${categories}" class="list-group-item">
+                <a th:href="@{/category/{name}(name=${category.name}, currency=${selectedCurrency ?: 'EUR'})}" th:text="${category.name}" class="d-block text-decoration-none text-dark"></a>
+            </li>
+        </div>
+    </div>
+	
+	<!-- Footer note aligned to the right -->
+	<footer class="text-end mt-4">
+	    <small><i>Page generated with ChatGPT 4o</i></small>
+	</footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

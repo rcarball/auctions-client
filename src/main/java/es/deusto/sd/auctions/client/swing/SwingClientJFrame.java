@@ -42,7 +42,7 @@ import es.deusto.sd.auctions.client.Category;
  * SwingClient class is a Swing-based client that demonstrates the usage of the
  * AuctionsService. It is implemented using a classic Controller pattern.
  */
-public class SwingClient extends JFrame {
+public class SwingClientJFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	// Controller instance
@@ -64,7 +64,7 @@ public class SwingClient extends JFrame {
 
 	private static final String[] CURRENCIES = { "EUR", "USD", "GBP", "JPY" };
 
-	public SwingClient(SwingClientController controller) {
+	public SwingClientJFrame(SwingClientController controller) {
 		this.controller = controller;
 
 		if (!performLogin()) {
@@ -321,6 +321,6 @@ public class SwingClient extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(() -> new SwingClient(new SwingClientController()));
+		SwingUtilities.invokeLater(() -> new SwingClientJFrame(new SwingClientController()));
 	}
 }

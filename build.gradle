@@ -36,7 +36,7 @@ task runConsoleClient(type: JavaExec) {
 task runSwingClient(type: JavaExec) {
     group = 'application'
     description = 'Run the Swing Client'
-    mainClass = 'es.deusto.sd.auctions.client.swing.SwingClient'
+    mainClass = 'es.deusto.sd.auctions.client.swing.SwingClientJFrame'
     classpath = sourceSets.main.runtimeClasspath
 }
 
