@@ -35,6 +35,8 @@ import es.deusto.sd.auctions.client.data.Credentials;
  * contract. This leads to more robust and maintainable code, as the 
  * interface serves as a clear specification of the expected behavior 
  * for any service proxy implementation.
+ * 
+ * (Description generated with ChatGPT 4o mini)
  */
 public interface IAuctionsServiceProxy {
 	// Method for user login

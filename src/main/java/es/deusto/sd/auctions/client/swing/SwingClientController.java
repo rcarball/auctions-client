@@ -26,9 +26,13 @@ import es.deusto.sd.auctions.client.proxies.IAuctionsServiceProxy;
  * implementations of the service proxy, such as HttpServiceProxy or RestTemplateServiceProxy, 
  * without being tightly coupled to any specific implementation. This promotes flexibility 
  * and allows for easier testing and maintenance of the application.
+ * 
+ * (Description generated with ChatGPT 4o mini)
  */
-public class SwingClientController {   
+public class SwingClientController {
+	// Service proxy for interacting with the AuctionsService using HTTP-based implementation
 	private IAuctionsServiceProxy serviceProxy = new HttpServiceProxy();
+	// Token to be used during the session
     private String token;
 
 	public boolean login(String email, String password) {

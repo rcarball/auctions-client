@@ -40,6 +40,8 @@ import es.deusto.sd.auctions.client.data.Credentials;
  * note that since RestTemplate is synchronous, it can block the calling thread, which 
  * may not be suitable for high-performance applications that require non-blocking 
  * behavior.
+ * 
+ * (Description generated with ChatGPT 4o mini)
  */
 @Service
 public class RestTemplateServiceProxy implements IAuctionsServiceProxy{

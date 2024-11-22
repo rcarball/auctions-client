@@ -17,19 +17,24 @@ import es.deusto.sd.auctions.client.proxies.HttpServiceProxy;
 import es.deusto.sd.auctions.client.proxies.IAuctionsServiceProxy;
 
 /**
- * ConsoleClient class is a simple console-based client that demonstrates the
- * usage of the AuctionsService using the HttpServiceProxy.
+ * ConsoleClient class serves as a basic client implementation for the AuctionsService 
+ * in a console environment. This class manages user interactions through the console, 
+ * performing operations such as user login, loading categories, retrieving articles, 
+ * and placing bids. It utilizes the IAuctionsServiceProxy to interact with the service layer, 
+ * enabling the application to execute various auction-related functionalities.
+ * 
+ * (Description generated with ChatGPT 4o mini)
  */
 public class ConsoleClient {
-
-	private static final Logger logger = LoggerFactory.getLogger(ConsoleClient.class);
-	private final IAuctionsServiceProxy serviceProxy = new HttpServiceProxy();
-	
+	// Service proxy for interacting with the AuctionsService using HTTP-based implementation
+	private final IAuctionsServiceProxy serviceProxy = new HttpServiceProxy();	
 	// Token to be used during the session
 	private String token;
 	// Default email and password for login
 	private String defaultEmail = "blackwidow@marvel.com";
 	private String defaultPassword = "Bl@ckWid0w2023";
+	
+	private static final Logger logger = LoggerFactory.getLogger(ConsoleClient.class);
 
 	public static void main(String[] args) {
 		ConsoleClient client = new ConsoleClient();
