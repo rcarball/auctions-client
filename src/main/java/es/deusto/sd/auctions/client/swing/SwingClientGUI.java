@@ -39,10 +39,10 @@ import es.deusto.sd.auctions.client.data.Article;
 import es.deusto.sd.auctions.client.data.Category;
 
 /**
- * SwingClient class is a Swing-based client that demonstrates the usage of the
+ * SwingClientGUI class is a Swing-based client that demonstrates the usage of the
  * AuctionsService. It is implemented using a classic Controller pattern.
  */
-public class SwingClientJFrame extends JFrame {
+public class SwingClientGUI extends JFrame {
 	private static final long serialVersionUID = 1L;
 
 	// Controller instance
@@ -64,7 +64,7 @@ public class SwingClientJFrame extends JFrame {
 
 	private static final String[] CURRENCIES = { "EUR", "USD", "GBP", "JPY" };
 
-	public SwingClientJFrame(SwingClientController controller) {
+	public SwingClientGUI(SwingClientController controller) {
 		this.controller = controller;
 
 		if (!performLogin()) {
@@ -321,6 +321,6 @@ public class SwingClientJFrame extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		SwingUtilities.invokeLater(() -> new SwingClientJFrame(new SwingClientController()));
+		SwingUtilities.invokeLater(() -> new SwingClientGUI(new SwingClientController()));
 	}
 }

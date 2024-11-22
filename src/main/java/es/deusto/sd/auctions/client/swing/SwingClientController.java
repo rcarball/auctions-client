@@ -5,25 +5,32 @@
  */
 package es.deusto.sd.auctions.client.swing;
 
+import java.util.List;
+
 import es.deusto.sd.auctions.client.data.Article;
 import es.deusto.sd.auctions.client.data.Category;
 import es.deusto.sd.auctions.client.data.Credentials;
 import es.deusto.sd.auctions.client.proxies.HttpServiceProxy;
-
-import java.util.List;
+import es.deusto.sd.auctions.client.proxies.IAuctionsServiceProxy;
 
 /**
- * SwingClientController class is a Controller class that manages the communication
- * between the SwingClient (the view) and the HttpServiceProxy.
+ * SwingClientController class acts as a Controller in the Model-View-Controller 
+ * (MVC) architectural pattern, managing the interaction between the SwingClientGUI 
+ * (the View) and the IAuctionsServiceProxy (the Model). This class is responsible 
+ * for handling user input, communicating with the service layer, and updating 
+ * the view accordingly.
+ * 
+ * The class encapsulates the logic for user authentication (login/logout), 
+ * retrieving categories and articles, and placing bids on articles. By utilizing 
+ * the IAuctionsServiceProxy interface, the controller can interact with various 
+ * implementations of the service proxy, such as HttpServiceProxy or RestTemplateServiceProxy, 
+ * without being tightly coupled to any specific implementation. This promotes flexibility 
+ * and allows for easier testing and maintenance of the application.
  */
 public class SwingClientController {   
-	private HttpServiceProxy serviceProxy;
+	private IAuctionsServiceProxy serviceProxy = new HttpServiceProxy();
     private String token;
 
-    public SwingClientController() {
-        this.serviceProxy = new HttpServiceProxy();
-    }
-        
 	public boolean login(String email, String password) {
         try {
             Credentials credentials = new Credentials(email, password);

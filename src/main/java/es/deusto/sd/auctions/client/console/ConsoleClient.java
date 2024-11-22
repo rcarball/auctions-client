@@ -14,6 +14,7 @@ import es.deusto.sd.auctions.client.data.Article;
 import es.deusto.sd.auctions.client.data.Category;
 import es.deusto.sd.auctions.client.data.Credentials;
 import es.deusto.sd.auctions.client.proxies.HttpServiceProxy;
+import es.deusto.sd.auctions.client.proxies.IAuctionsServiceProxy;
 
 /**
  * ConsoleClient class is a simple console-based client that demonstrates the
@@ -22,7 +23,7 @@ import es.deusto.sd.auctions.client.proxies.HttpServiceProxy;
 public class ConsoleClient {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConsoleClient.class);
-	private final HttpServiceProxy serviceProxy = new HttpServiceProxy();
+	private final IAuctionsServiceProxy serviceProxy = new HttpServiceProxy();
 	
 	// Token to be used during the session
 	private String token;
