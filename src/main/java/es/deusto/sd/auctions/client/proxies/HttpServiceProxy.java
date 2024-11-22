@@ -21,10 +21,30 @@ import es.deusto.sd.auctions.client.data.Category;
 import es.deusto.sd.auctions.client.data.Credentials;
 
 /**
- * HttpServiceProxy class is a ServiceProxy class that communicates with 
- * the AuctionsService using simple HTTP requests.
+ * HttpServiceProxy class is an implementation of the Service Proxy design pattern
+ * that communicates with the AuctionsService using simple HTTP requests via Java's
+ * HttpClient. This class serves as an intermediary for the client to perform 
+ * CRUD operations, such as user authentication (login/logout), retrieving categories 
+ * and articles, and placing bids on articles. By encapsulating the HTTP request logic 
+ * and handling various exceptions, this proxy provides a cleaner interface for clients 
+ * to interact with the underlying service.
+ * 
+ * The class uses Java's HttpClient which allows for asynchronous and synchronous 
+ * communication with HTTP servers. It leverages the `HttpRequest` and `HttpResponse` 
+ * classes to construct and send requests, simplifying the process of making HTTP calls. 
+ * The ObjectMapper from the Jackson library is employed to serialize and deserialize 
+ * JSON data, facilitating easy conversion between Java objects and their JSON 
+ * representations. This is particularly useful for converting complex data structures, 
+ * like the `Credentials`, `Category`, and `Article` classes, into JSON format for 
+ * transmission in HTTP requests, and vice versa for processing the responses.
+ * 
+ * The absence of the @Service annotation indicates that this class is not managed 
+ * by a Spring container, which means that it will not benefit from Spring's 
+ * dependency injection features. Instead, it operates independently, which can 
+ * be suitable for applications preferring a more lightweight approach without 
+ * the overhead of a full Spring context.
  */
-public class HttpServiceProxy {
+public class HttpServiceProxy implements IAuctionsServiceProxy {
     private static final String BASE_URL = "http://localhost:8081";
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
@@ -34,7 +54,7 @@ public class HttpServiceProxy {
         this.objectMapper = new ObjectMapper();
     }
 
-    // Login method with Credentials    
+    @Override
     public String login(Credentials credentials) {
         try {
             String credentialsJson = objectMapper.writeValueAsString(credentials);
@@ -57,7 +77,7 @@ public class HttpServiceProxy {
         }
     }
 
-    // Logout method with token parameter
+    @Override
     public void logout(String token) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -78,7 +98,7 @@ public class HttpServiceProxy {
         }
     }
 
-    // Method to get all categories without needing a token parameter
+    @Override
     public List<Category> getAllCategories() {
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -100,7 +120,7 @@ public class HttpServiceProxy {
         }
     }
     
-    // Method to get articles by category name
+    @Override
     public List<Article> getArticlesByCategory(String categoryName, String currency) {
         try {
             // Encode the category name to handle spaces and special characters
@@ -127,7 +147,7 @@ public class HttpServiceProxy {
         }
     }
 
-    // Method to get the details of a specific article by ID
+    @Override
     public Article getArticleDetails(Long articleId, String currency) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -150,7 +170,7 @@ public class HttpServiceProxy {
         }
     }
 
-    // Method to make a bid with required parameters, including token
+    @Override
     public void makeBid(Long articleId, Float amount, String currency, String token) {
         try {
             HttpRequest request = HttpRequest.newBuilder()

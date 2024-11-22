@@ -38,7 +38,7 @@
         <div th:if="${token != null}">
             <h3 class="mt-4">Place a Bid</h3>
             <form th:action="@{/bid}" method="post" class="card p-4 shadow-sm">
-                <input type="hidden" th:name="articleId" th:value="${article.id}" />
+                <input type="hidden" th:name="id" th:value="${article.id}" />
                 <input type="hidden" th:name="currency" th:value="${selectedCurrency}" />
                 <div class="mb-3">
                     <label for="amount" class="form-label">Bid Amount:</label>
