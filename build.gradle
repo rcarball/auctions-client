@@ -1,7 +1,7 @@
 plugins {
 	id 'java'
 	id 'application'
-	id 'org.springframework.boot' version '3.3.5'
+	id 'org.springframework.boot' version '3.4.0'
 	id 'io.spring.dependency-management' version '1.1.6'
 }
 
@@ -36,7 +36,7 @@ task runConsoleClient(type: JavaExec) {
 task runSwingClient(type: JavaExec) {
     group = 'application'
     description = 'Run the Swing Client'
-    mainClass = 'es.deusto.sd.auctions.client.swing.SwingClientJFrame'
+    mainClass = 'es.deusto.sd.auctions.client.swing.SwingClientGUI'
     classpath = sourceSets.main.runtimeClasspath
 }
 

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import es.deusto.sd.auctions.client.data.Article;
@@ -91,13 +92,12 @@ public class WebClientController {
         List<Category> categories;
         
         try {
-            categories = auctionsServiceProxy.getAllCategories();
+        	categories = auctionsServiceProxy.getAllCategories();
+            model.addAttribute("categories", categories);
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Failed to load categories: " + e.getMessage());
-            return "index";
         }
         
-        model.addAttribute("categories", categories);
         return "index";
     }
     
@@ -106,6 +106,7 @@ public class WebClientController {
     					        Model model) {
         // Add redirectUrl to the model if needed
         model.addAttribute("redirectUrl", redirectUrl);
+        
         return "login"; // Return your login template
     }
 
@@ -115,6 +116,7 @@ public class WebClientController {
                                @RequestParam(value = "redirectUrl", required = false) String redirectUrl, 
                                Model model) {
         Credentials credentials = new Credentials(email, password);
+        
         try {
             token = auctionsServiceProxy.login(credentials);
             
@@ -149,14 +151,16 @@ public class WebClientController {
         
         try {
             articles = auctionsServiceProxy.getArticlesByCategory(name, currency);
+            model.addAttribute("articles", articles);
+            model.addAttribute("categoryName", name);
+            model.addAttribute("selectedCurrency", currency);
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Failed to load articles for category: " + e.getMessage());
-            return "category";
+            model.addAttribute("articles", null);
+            model.addAttribute("categoryName", name);
+            model.addAttribute("selectedCurrency", "EUR");
         }
         
-        model.addAttribute("articles", articles);
-        model.addAttribute("categoryName", name);
-        model.addAttribute("selectedCurrency", currency);
         return "category";
     }
 
@@ -168,27 +172,28 @@ public class WebClientController {
         
         try {
             article = auctionsServiceProxy.getArticleDetails(id, currency);
+            model.addAttribute("article", article);
+            model.addAttribute("selectedCurrency", currency);
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Failed to load article details: " + e.getMessage());
-            return "article";
+            model.addAttribute("article", null);
+            model.addAttribute("selectedCurrency", "EUR");
         }
         
-        model.addAttribute("article", article);
-        model.addAttribute("categoryName", article.categoryName());
-        model.addAttribute("selectedCurrency", currency);
         return "article";
     }
 
     @PostMapping("/bid")
-    public String placeBid(@RequestParam("id") Long id, 
+    public String makeBid(@RequestParam("id") Long id, 
                            @RequestParam("amount") Float amount, 
                            @RequestParam(value = "currency", defaultValue = "EUR") String currency, 
-                           Model model) {
+                           Model model,
+                           RedirectAttributes redirectAttributes) {
         try {
             auctionsServiceProxy.makeBid(id, amount, currency, token);
-            model.addAttribute("successMessage", "Bid placed successfully!");
+            redirectAttributes.addFlashAttribute("successMessage", "Bid placed successfully!");
         } catch (RuntimeException e) {
-            model.addAttribute("errorMessage", "Failed to place bid: " + e.getMessage());
+        	redirectAttributes.addFlashAttribute("errorMessage", "Failed to place bid: " + e.getMessage());
         }
         
         return "redirect:/article/" + id + "?currency=" + currency;

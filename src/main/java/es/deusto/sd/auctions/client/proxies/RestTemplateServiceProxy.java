@@ -101,7 +101,7 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
     @SuppressWarnings("unchecked")
     @Override
     public List<Article> getArticlesByCategory(String categoryName, String currency) {
-        String url = String.format("%s/auctions/categories/%s/articles?currency=%s", apiBaseUrl, categoryName, currency);
+        String url = apiBaseUrl + "/auctions/categories/" + categoryName + "/articles?currency=" + currency;
         
         try {
             return restTemplate.getForObject(url, List.class);
@@ -116,7 +116,7 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
 
     @Override
     public Article getArticleDetails(Long articleId, String currency) {
-        String url = String.format("%s/auctions/articles/%d/details?currency=%s", apiBaseUrl, articleId, currency);
+        String url = apiBaseUrl + "/auctions/articles/" + articleId + "/details?currency=" + currency;
         
         try {
             return restTemplate.getForObject(url, Article.class);
@@ -131,7 +131,7 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
     
     @Override
     public void makeBid(Long articleId, Float amount, String currency, String token) {
-        String url = String.format("%s/auctions/articles/%d/bid?amount=%f&currency=%s", apiBaseUrl, articleId, amount, currency);
+    	String url = apiBaseUrl + "/auctions/articles/" + articleId + "/bid?amount=" +  amount + "&currency=" + currency;
         
         try {
             restTemplate.postForObject(url, token, Void.class);
