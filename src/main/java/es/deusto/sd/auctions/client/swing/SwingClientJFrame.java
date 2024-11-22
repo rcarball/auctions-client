@@ -35,8 +35,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import es.deusto.sd.auctions.client.Article;
-import es.deusto.sd.auctions.client.Category;
+import es.deusto.sd.auctions.client.data.Article;
+import es.deusto.sd.auctions.client.data.Category;
 
 /**
  * SwingClient class is a Swing-based client that demonstrates the usage of the

@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import es.deusto.sd.auctions.client.Article;
-import es.deusto.sd.auctions.client.Category;
-import es.deusto.sd.auctions.client.Credentials;
-import es.deusto.sd.auctions.client.external.RestTemplateServiceProxy;
+import es.deusto.sd.auctions.client.data.Article;
+import es.deusto.sd.auctions.client.data.Category;
+import es.deusto.sd.auctions.client.data.Credentials;
+import es.deusto.sd.auctions.client.proxies.RestTemplateServiceProxy;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -43,7 +43,7 @@ public class WebClientController {
     }
     
     @GetMapping("/")
-    public String home(Model model, HttpServletRequest request) {
+    public String home(Model model) {
         List<Category> categories;
         
         try {
@@ -60,7 +60,7 @@ public class WebClientController {
     @GetMapping("/category/{name}")
     public String getCategoryArticles(@PathVariable("name") String name, 
                                       @RequestParam(value = "currency", defaultValue = "EUR") String currency, 
-                                      Model model, HttpServletRequest request) {
+                                      Model model) {
         List<Article> articles;
         
         try {
@@ -79,7 +79,7 @@ public class WebClientController {
     @GetMapping("/article/{id}")
     public String getArticleDetails(@PathVariable("id") Long id, 
                                     @RequestParam(value = "currency", defaultValue = "EUR") String currency, 
-                                    Model model, HttpServletRequest request) {       
+                                    Model model) {       
         Article article;
         
         try {
@@ -96,18 +96,18 @@ public class WebClientController {
     }
 
     @PostMapping("/bid")
-    public String placeBid(@RequestParam("articleId") Long articleId, 
+    public String placeBid(@RequestParam("id") Long id, 
                            @RequestParam("amount") Float amount, 
                            @RequestParam(value = "currency", defaultValue = "EUR") String currency, 
                            Model model) {
         try {
-            auctionsServiceProxy.makeBid(articleId, amount, currency, token);
+            auctionsServiceProxy.makeBid(id, amount, currency, token);
             model.addAttribute("successMessage", "Bid placed successfully!");
         } catch (RuntimeException e) {
             model.addAttribute("errorMessage", "Failed to place bid: " + e.getMessage());
         }
         
-        return "redirect:/article/" + articleId + "?currency=" + currency;
+        return "redirect:/article/" + id + "?currency=" + currency;
     }
 
     @GetMapping("/login")

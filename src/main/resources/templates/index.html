@@ -8,7 +8,7 @@
     <!-- Barra de navegación -->
     <nav class="navbar navbar-light bg-white shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">Auction App</a>
+            <a class="navbar-brand" href="/">Auctions App</a>
             <div>
                 <a th:if="${token == null}" th:href="@{/login}" class="btn btn-primary btn-sm">Login</a>
                 <a th:if="${token != null}" th:href="@{/logout(redirectUrl=${currentUrl})}" class="btn btn-danger btn-sm">Logout</a>
@@ -30,7 +30,7 @@
 	
 	<!-- Footer note aligned to the right -->
 	<footer class="text-end mt-4">
-	    <small><i>Page generated with ChatGPT 4o</i></small>
+	    <small><i>Page generated with ChatGPT 4o </i></small>
 	</footer>
 
 

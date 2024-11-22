@@ -3,6 +3,6 @@
  * adapted using GitHub Copilot. It has been thoroughly reviewed 
  * and validated to ensure correctness and that it is free of errors.
  */
-package es.deusto.sd.auctions.client;
+package es.deusto.sd.auctions.client.data;
 
 public record Credentials(String email, String password) {}

@@ -10,10 +10,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import es.deusto.sd.auctions.client.Article;
-import es.deusto.sd.auctions.client.Category;
-import es.deusto.sd.auctions.client.Credentials;
-import es.deusto.sd.auctions.client.external.HttpServiceProxy;
+import es.deusto.sd.auctions.client.data.Article;
+import es.deusto.sd.auctions.client.data.Category;
+import es.deusto.sd.auctions.client.data.Credentials;
+import es.deusto.sd.auctions.client.proxies.HttpServiceProxy;
 
 /**
  * ConsoleClient class is a simple console-based client that demonstrates the
