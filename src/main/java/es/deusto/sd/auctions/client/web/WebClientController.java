@@ -101,32 +101,32 @@ public class WebClientController {
         return "index";
     }
     
-    @GetMapping("/login")
-    public String showLoginPage(@RequestParam(value = "redirectUrl", required = false) String redirectUrl,
-    					        Model model) {
-        // Add redirectUrl to the model if needed
-        model.addAttribute("redirectUrl", redirectUrl);
-        
-        return "login"; // Return your login template
-    }
-
-    @PostMapping("/login")
-    public String performLogin(@RequestParam("email") String email, 
-                               @RequestParam("password") String password, 
-                               @RequestParam(value = "redirectUrl", required = false) String redirectUrl, 
-                               Model model) {
-        Credentials credentials = new Credentials(email, password);
-        
-        try {
-            token = auctionsServiceProxy.login(credentials);
-            
-            // Redirect to the original page or root if redirectUrl is null
-            return "redirect:" + (redirectUrl != null && !redirectUrl.isEmpty() ? redirectUrl : "/");
-        } catch (RuntimeException e) {
-            model.addAttribute("errorMessage", "Login failed: " + e.getMessage());
-            return "login"; // Return to login page with error message
-        }
-    }
+	    @GetMapping("/login")
+	    public String showLoginPage(@RequestParam(value = "redirectUrl", required = false) String redirectUrl,
+	    					        Model model) {
+	        // Add redirectUrl to the model if needed
+	        model.addAttribute("redirectUrl", redirectUrl);
+	        
+	        return "login"; // Return your login template
+	    }
+	
+	    @PostMapping("/login")
+	    public String performLogin(@RequestParam("email") String email, 
+	                               @RequestParam("password") String password, 
+	                               @RequestParam(value = "redirectUrl", required = false) String redirectUrl, 
+	                               Model model) {
+	        Credentials credentials = new Credentials(email, password);
+	        
+	        try {
+	            token = auctionsServiceProxy.login(credentials);
+	            
+	            // Redirect to the original page or root if redirectUrl is null
+	            return "redirect:" + (redirectUrl != null && !redirectUrl.isEmpty() ? redirectUrl : "/");
+	        } catch (RuntimeException e) {
+	            model.addAttribute("errorMessage", "Login failed: " + e.getMessage());
+	            return "login"; // Return to login page with error message
+	        }
+	    }
 
     @GetMapping("/logout")
     public String performLogout(@RequestParam(value = "redirectUrl", defaultValue = "/") String redirectUrl,
@@ -191,8 +191,11 @@ public class WebClientController {
                            RedirectAttributes redirectAttributes) {
         try {
             auctionsServiceProxy.makeBid(id, amount, currency, token);
+            // RedirectAttributes are used to pass attributes to the redirected page
+            // Add a success message to be displayed in the article view
             redirectAttributes.addFlashAttribute("successMessage", "Bid placed successfully!");
         } catch (RuntimeException e) {
+        	// Add an error message to be displayed in the article view
         	redirectAttributes.addFlashAttribute("errorMessage", "Failed to place bid: " + e.getMessage());
         }
         
