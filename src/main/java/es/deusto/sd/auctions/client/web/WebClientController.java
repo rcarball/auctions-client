@@ -103,24 +103,26 @@ public class WebClientController {
 	}
 
 	@GetMapping("/login")
-	public String showLoginPage(@RequestParam(value = "redirectUrl", required = false) String redirectUrl,
-			Model model) {
+	public String showLoginPage(@RequestParam(value = "redirectUrl", required = false) String redirection,
+								Model model) {
 		// Add redirectUrl to the model if needed
-		model.addAttribute("redirectUrl", redirectUrl);
+		model.addAttribute("redirectUrl", redirection);
 
 		return "login"; // Return your login template
 	}
 
 	@PostMapping("/login")
-	public String performLogin(@RequestParam("email") String email, @RequestParam("password") String password,
-			@RequestParam(value = "redirectUrl", required = false) String redirectUrl, Model model) {
-		Credentials credentials = new Credentials(email, password);
+	public String performLogin(@RequestParam("email") String userEmail, 
+							   @RequestParam("password") String userPassword,
+							   @RequestParam(value = "redirectUrl", required = false) String redirection, 
+							   Model model) {
+		Credentials credentials = new Credentials(userEmail, userPassword);
 
 		try {
 			token = auctionsServiceProxy.login(credentials);
 
 			// Redirect to the original page or root if redirectUrl is null
-			return "redirect:" + (redirectUrl != null && !redirectUrl.isEmpty() ? redirectUrl : "/");
+			return "redirect:" + (redirection != null && !redirection.isEmpty() ? redirection : "/");
 		} catch (RuntimeException e) {
 			model.addAttribute("errorMessage", "Login failed: " + e.getMessage());
 			return "login"; // Return to login page with error message
@@ -128,8 +130,8 @@ public class WebClientController {
 	}
 
 	@GetMapping("/logout")
-	public String performLogout(@RequestParam(value = "redirectUrl", defaultValue = "/") String redirectUrl,
-			Model model) {
+	public String performLogout(@RequestParam(value = "redirectUrl", defaultValue = "/") String redirection,
+								Model model) {
 		try {
 			auctionsServiceProxy.logout(token);
 			token = null; // Clear the token after logout
@@ -139,23 +141,24 @@ public class WebClientController {
 		}
 
 		// Redirect to the specified URL after logout
-		return "redirect:" + redirectUrl;
+		return "redirect:" + redirection;
 	}
 
 	@GetMapping("/category/{name}")
-	public String getCategoryArticles(@PathVariable("name") String name,
-			@RequestParam(value = "currency", defaultValue = "EUR") String currency, Model model) {
+	public String getCategoryArticles(@PathVariable("name") String categoryName,
+									  @RequestParam(value = "currency", defaultValue = "EUR") String selectedCurrency, 
+									  Model model) {
 		List<Article> articles;
 
 		try {
-			articles = auctionsServiceProxy.getArticlesByCategory(name, currency);
+			articles = auctionsServiceProxy.getArticlesByCategory(categoryName, selectedCurrency);
 			model.addAttribute("articles", articles);
-			model.addAttribute("categoryName", name);
-			model.addAttribute("selectedCurrency", currency);
+			model.addAttribute("categoryName", categoryName);
+			model.addAttribute("selectedCurrency", selectedCurrency);
 		} catch (RuntimeException e) {
 			model.addAttribute("errorMessage", "Failed to load articles for category: " + e.getMessage());
 			model.addAttribute("articles", null);
-			model.addAttribute("categoryName", name);
+			model.addAttribute("categoryName", categoryName);
 			model.addAttribute("selectedCurrency", "EUR");
 		}
 
@@ -163,14 +166,15 @@ public class WebClientController {
 	}
 
 	@GetMapping("/article/{id}")
-	public String getArticleDetails(@PathVariable("id") Long id,
-			@RequestParam(value = "currency", defaultValue = "EUR") String currency, Model model) {
+	public String getArticleDetails(@PathVariable("id") Long productId,
+									@RequestParam(value = "currency", defaultValue = "EUR") String selectedCurrency,
+									Model model) {
 		Article article;
 
 		try {
-			article = auctionsServiceProxy.getArticleDetails(id, currency);
+			article = auctionsServiceProxy.getArticleDetails(productId, selectedCurrency);
 			model.addAttribute("article", article);
-			model.addAttribute("selectedCurrency", currency);
+			model.addAttribute("selectedCurrency", selectedCurrency);
 		} catch (RuntimeException e) {
 			model.addAttribute("errorMessage", "Failed to load article details: " + e.getMessage());
 			model.addAttribute("article", null);
@@ -181,11 +185,13 @@ public class WebClientController {
 	}
 
 	@PostMapping("/bid")
-	public String makeBid(@RequestParam("id") Long id, @RequestParam("amount") Float amount,
-			@RequestParam(value = "currency", defaultValue = "EUR") String currency, Model model,
-			RedirectAttributes redirectAttributes) {
+	public String makeBid(@RequestParam("id") Long productId, 
+						  @RequestParam("amount") Float bidAmount,
+						  @RequestParam(value = "currency", defaultValue = "EUR") String selectedCurrency,
+						  Model model,
+						  RedirectAttributes redirectAttributes) {
 		try {
-			auctionsServiceProxy.makeBid(id, amount, currency, token);
+			auctionsServiceProxy.makeBid(productId, bidAmount, selectedCurrency, token);
 			// RedirectAttributes are used to pass attributes to the redirected page
 			// Add a success message to be displayed in the article view
 			redirectAttributes.addFlashAttribute("successMessage", "Bid placed successfully!");
@@ -194,6 +200,6 @@ public class WebClientController {
 			redirectAttributes.addFlashAttribute("errorMessage", "Failed to place bid: " + e.getMessage());
 		}
 
-		return "redirect:/article/" + id + "?currency=" + currency;
+		return "redirect:/article/" + productId + "?currency=" + selectedCurrency;
 	}
 }
