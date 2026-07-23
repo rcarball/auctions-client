@@ -7,7 +7,6 @@ package es.deusto.sd.auctions.client.web;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -79,8 +78,12 @@ public class WebClientController {
 	// Session attribute key under which the per-user token is stored.
 	private static final String TOKEN_ATTRIBUTE = "token";
 
-	@Autowired
-	private IAuctionsServiceProxy auctionsServiceProxy;
+	private final IAuctionsServiceProxy auctionsServiceProxy;
+
+	// Constructor injection of the AuctionsServiceProxy dependency.
+	WebClientController(IAuctionsServiceProxy auctionsServiceProxy) {
+		this.auctionsServiceProxy = auctionsServiceProxy;
+	}
 
 	// Add current URL and token to all views.
 	// The token is read from the HttpSession so that each user has its OWN session
