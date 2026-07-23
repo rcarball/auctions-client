@@ -69,22 +69,22 @@ From the project root, run one of the three clients:
 - 🌐 **Web client** (default) — served at **http://localhost:8083**:
 
 ```bash
-gradle bootRun
+./gradlew bootRun
 ```
 
 - 🖥️ **Console client**:
 
 ```bash
-gradle runConsoleClient
+./gradlew runConsoleClient
 ```
 
 - 🪟 **Swing client**:
 
 ```bash
-gradle runSwingClient
+./gradlew runSwingClient
 ```
 
-> ℹ️ No Gradle wrapper is included. Use a local Gradle installation, or generate the wrapper once with `gradle wrapper` and then use `./gradlew ...`. Alternatively, import the project into an IDE and run `WebClientApplication`, `ConsoleClient`, or `SwingClientGUI`.
+> ℹ️ The Gradle **wrapper is included**, so no local Gradle installation is required (on Windows use `gradlew.bat`). The first run downloads the pinned Gradle version. To use it in **Eclipse / Spring Tool Suite**: *File → Import… → Gradle → Existing Gradle Project*, then run `WebClientApplication`, `ConsoleClient`, or `SwingClientGUI`.
 
 ---
 

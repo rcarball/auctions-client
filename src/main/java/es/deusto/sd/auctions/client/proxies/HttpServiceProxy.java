@@ -16,7 +16,8 @@ import java.util.List;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
 import es.deusto.sd.auctions.client.data.Article;
 import es.deusto.sd.auctions.client.data.Category;
@@ -118,7 +119,7 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             return switch (response.statusCode()) {
-                case 200 -> objectMapper.readValue(response.body(), objectMapper.getTypeFactory().constructCollectionType(List.class, Category.class));
+                case 200 -> objectMapper.readValue(response.body(), new TypeReference<List<Category>>() {});
                 case 204 -> throw new RuntimeException("No Content: No categories found");
                 case 500 -> throw new RuntimeException("Internal server error while fetching categories");
                 default -> throw new RuntimeException("Failed to fetch categories with status code: " + response.statusCode());
@@ -143,7 +144,7 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             return switch (response.statusCode()) {
-                case 200 -> objectMapper.readValue(response.body(), objectMapper.getTypeFactory().constructCollectionType(List.class, Article.class));
+                case 200 -> objectMapper.readValue(response.body(), new TypeReference<List<Article>>() {});
                 case 204 -> throw new RuntimeException("No Content: Category has no articles");
                 case 400 -> throw new RuntimeException("Bad Request: Currency not supported");
                 case 404 -> throw new RuntimeException("Not Found: Category not found");
