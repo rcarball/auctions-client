@@ -56,6 +56,34 @@ La gestión de sesión se basa en un **token con estado (stateful)** generado en
 
 ---
 
+## ▶️ How to run
+
+Requires **JDK 21**. The clients talk to the **Auctions Server (Version 2)**, so make sure it is running on **http://localhost:8081** first (see `api.base.url` in `application.properties`).
+
+From the project root, run one of the three clients:
+
+- 🌐 **Web client** (default) — served at **http://localhost:8083**:
+
+```bash
+gradle bootRun
+```
+
+- 🖥️ **Console client**:
+
+```bash
+gradle runConsoleClient
+```
+
+- 🪟 **Swing client**:
+
+```bash
+gradle runSwingClient
+```
+
+> ℹ️ No Gradle wrapper is included. Use a local Gradle installation, or generate the wrapper once with `gradle wrapper` and then use `./gradlew ...`. Alternatively, import the project into an IDE and run `WebClientApplication`, `ConsoleClient`, or `SwingClientGUI`.
+
+---
+
 ## ✒️ Authors / Autoría
 
 **Carballedo, R. & Cortázar, R.**  
