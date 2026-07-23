@@ -4,30 +4,45 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
 	<meta charset="UTF-8">
+	<!-- Day/Night mode: apply the theme before rendering (see index.html for details). -->
+	<script>
+		(function () {
+			const saved = localStorage.getItem('theme');
+			const theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+			document.documentElement.setAttribute('data-bs-theme', theme);
+		})();
+	</script>
     <title>Login</title>
-	<!-- Bootstrap JS -->
+	<!-- Bootstrap CSS -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 	<!-- Font-awesome -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-light">
+<body>
 	<!-- Header with logo and name -->
-	<header class="bg-light shadow-sm">
+	<header class="bg-body-tertiary shadow-sm">
 	    <div class="container py-2 text-center">
-	        <a href="/" class="text-decoration-none text-dark">
+	        <a href="/" class="text-decoration-none text-body">
 	            <i class="fas fa-gavel fa-2x me-2"></i>
-	            <span class="fs-4" style="color: #4a4a4a;">Auctions App</span>
+	            <span class="fs-4">Auctions App</span>
 	        </a>
 	    </div>
 	</header>
 
 	<!-- Navigation bar -->
-	<nav class="navbar navbar-light bg-light shadow-sm">
+	<nav class="navbar bg-body-tertiary shadow-sm">
 	    <div class="container-fluid d-flex align-items-center">
 	        <!-- Back button -->
 	        <a href="javascript:history.back()" class="btn btn-secondary btn-sm d-flex align-items-center">
 	            <i class="fas fa-arrow-left me-2"></i> Back
 	        </a>
+	        <!-- Day/Night toggle button -->
+	        <div class="ms-auto">
+	            <button type="button" id="themeToggle" class="btn btn-outline-secondary btn-sm"
+	                    title="Cambiar modo claro/oscuro" aria-label="Toggle theme">
+	                <i class="fas fa-moon"></i>
+	            </button>
+	        </div>
 	    </div>
 	</nav>
 
@@ -55,15 +70,34 @@
         <!-- Error message -->
         <p th:if="${errorMessage}" th:text="${errorMessage}" class="text-danger mt-3"></p>
     </div>
-	
-	<footer style="background-color: #f8f9fa; padding: 15px; text-align: center; border-top: 1px solid #ddd;">
-	    <p style="margin: 0; font-size: 14px; color: #333;">
-	        <i class="fas fa-graduation-cap" style="color: #007bff;"></i> 
+
+	<footer class="bg-body-tertiary border-top text-center" style="padding: 15px;">
+	    <p class="mb-0 text-body-secondary" style="font-size: 14px;">
+	        <i class="fas fa-graduation-cap text-primary"></i>
 			Created for <strong>Software Design</strong> subject. <strong>University of Deusto </strong>(2024).
 	    </p>
 	</footer>
-	
+
 	<!-- Bootstrap JS -->
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+	<!-- Day/Night toggle behaviour -->
+	<script>
+		(function () {
+			const btn = document.getElementById('themeToggle');
+			if (!btn) return;
+			const icon = btn.querySelector('i');
+			function syncIcon() {
+				const dark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+				icon.className = dark ? 'fas fa-sun' : 'fas fa-moon';
+			}
+			syncIcon();
+			btn.addEventListener('click', function () {
+				const next = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+				document.documentElement.setAttribute('data-bs-theme', next);
+				localStorage.setItem('theme', next);
+				syncIcon();
+			});
+		})();
+	</script>
 </body>
 </html>

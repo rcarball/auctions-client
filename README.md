@@ -27,6 +27,8 @@ It implements the following client-side design patterns:
 Security is enhanced through **SHA-1 encryption (Apache Commons)** before transmitting credentials to the server.  
 Session management uses a **stateful token** generated upon login and reused for bidding operations.
 
+The web interface also offers a **light/dark (day/night) mode**, built on Bootstrap 5.3's native theming. A toggle button lets the user switch themes; the choice is remembered (via `localStorage`) and, by default, follows the operating system preference.
+
 ---
 
 ## 📘 Descripción
@@ -53,6 +55,8 @@ Aplica los siguientes patrones de diseño del lado cliente:
 
 Incluye cifrado de contraseñas mediante **SHA-1 (Apache Commons)** antes del envío al servidor.  
 La gestión de sesión se basa en un **token con estado (stateful)** generado en el login y reutilizado durante las operaciones de puja.
+
+La interfaz web ofrece además un **modo claro/oscuro (día/noche)**, basado en el soporte nativo de temas de Bootstrap 5.3. Un botón permite alternar el tema; la elección se recuerda (mediante `localStorage`) y, por defecto, sigue la preferencia del sistema operativo.
 
 ---
 
