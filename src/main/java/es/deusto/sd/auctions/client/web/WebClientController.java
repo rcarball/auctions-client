@@ -23,6 +23,7 @@ import es.deusto.sd.auctions.client.data.Category;
 import es.deusto.sd.auctions.client.data.Credentials;
 import es.deusto.sd.auctions.client.proxies.IAuctionsServiceProxy;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * WebClientController class serves as the primary controller for the web client
@@ -75,17 +76,21 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 public class WebClientController {
 
+	// Session attribute key under which the per-user token is stored.
+	private static final String TOKEN_ATTRIBUTE = "token";
+
 	@Autowired
 	private IAuctionsServiceProxy auctionsServiceProxy;
 
-	private String token; // Stores the session token
-
-	// Add current URL and token to all views
+	// Add current URL and token to all views.
+	// The token is read from the HttpSession so that each user has its OWN session
+	// state. Storing it in a controller field would share it across ALL users, since
+	// a @Controller is a singleton.
 	@ModelAttribute
-	public void addAttributes(Model model, HttpServletRequest request) {
+	public void addAttributes(Model model, HttpServletRequest request, HttpSession session) {
 		String currentUrl = ServletUriComponentsBuilder.fromRequestUri(request).toUriString();
 		model.addAttribute("currentUrl", currentUrl); // Makes current URL available in all templates
-		model.addAttribute("token", token); // Makes token available in all templates
+		model.addAttribute("token", session.getAttribute(TOKEN_ATTRIBUTE)); // Per-session token
 	}
 
 	@GetMapping("/")
@@ -112,14 +117,16 @@ public class WebClientController {
 	}
 
 	@PostMapping("/login")
-	public String performLogin(@RequestParam("email") String userEmail, 
+	public String performLogin(@RequestParam("email") String userEmail,
 							   @RequestParam("password") String userPassword,
-							   @RequestParam(value = "redirectUrl", required = false) String redirection, 
+							   @RequestParam(value = "redirectUrl", required = false) String redirection,
+							   HttpSession session,
 							   Model model) {
 		Credentials credentials = new Credentials(userEmail, userPassword);
 
 		try {
-			token = auctionsServiceProxy.login(credentials);
+			String token = auctionsServiceProxy.login(credentials);
+			session.setAttribute(TOKEN_ATTRIBUTE, token); // Store the token in the user's session
 
 			// Redirect to the original page or root if redirectUrl is null
 			return "redirect:" + (redirection != null && !redirection.isEmpty() ? redirection : "/");
@@ -131,10 +138,11 @@ public class WebClientController {
 
 	@GetMapping("/logout")
 	public String performLogout(@RequestParam(value = "redirectUrl", defaultValue = "/") String redirection,
+								HttpSession session,
 								Model model) {
 		try {
-			auctionsServiceProxy.logout(token);
-			token = null; // Clear the token after logout
+			auctionsServiceProxy.logout((String) session.getAttribute(TOKEN_ATTRIBUTE));
+			session.removeAttribute(TOKEN_ATTRIBUTE); // Clear the token from the session after logout
 			model.addAttribute("successMessage", "Logout successful.");
 		} catch (RuntimeException e) {
 			model.addAttribute("errorMessage", "Logout failed: " + e.getMessage());
@@ -185,13 +193,15 @@ public class WebClientController {
 	}
 
 	@PostMapping("/bid")
-	public String makeBid(@RequestParam("id") Long productId, 
+	public String makeBid(@RequestParam("id") Long productId,
 						  @RequestParam("amount") Float bidAmount,
 						  @RequestParam(value = "currency", defaultValue = "EUR") String selectedCurrency,
+						  HttpSession session,
 						  Model model,
 						  RedirectAttributes redirectAttributes) {
 		try {
-			auctionsServiceProxy.makeBid(productId, bidAmount, selectedCurrency, token);
+			auctionsServiceProxy.makeBid(productId, bidAmount, selectedCurrency,
+					(String) session.getAttribute(TOKEN_ATTRIBUTE));
 			// RedirectAttributes are used to pass attributes to the redirected page
 			// Add a success message to be displayed in the article view
 			redirectAttributes.addFlashAttribute("successMessage", "Bid placed successfully!");

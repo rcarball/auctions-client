@@ -14,6 +14,8 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.deusto.sd.auctions.client.data.Article;
@@ -59,7 +61,11 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
     @Override
     public String login(Credentials credentials) {
         try {
-            String credentialsJson = objectMapper.writeValueAsString(credentials);
+            // Hash the password with SHA-1 before sending it. The password never travels
+            // in clear text; the server hashes it again before storing it.
+            Credentials hashedCredentials = new Credentials(
+                    credentials.email(), DigestUtils.sha1Hex(credentials.password()));
+            String credentialsJson = objectMapper.writeValueAsString(hashedCredentials);
 
             HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(BASE_URL + "/auth/login"))
@@ -189,6 +195,7 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
                 case 401 -> throw new RuntimeException("Unauthorized: User not authenticated");
                 case 404 -> throw new RuntimeException("Not Found: Article not found");
                 case 409 -> throw new RuntimeException("Conflict: Bid amount must be greater than the current price");
+                case 410 -> throw new RuntimeException("Gone: The auction has already ended");
                 case 500 -> throw new RuntimeException("Internal server error while placing a bid");
                 default -> throw new RuntimeException("Failed to make a bid with status code: " + response.statusCode());
             }

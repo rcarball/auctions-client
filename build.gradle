@@ -22,6 +22,9 @@ dependencies {
 	// Spring Boot Starter Web for building web applications
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+	// Apache Commons Codec for SHA-1 password hashing (version managed by Spring Boot)
+    implementation 'commons-codec:commons-codec'
 }
 
 // Task to run the console client

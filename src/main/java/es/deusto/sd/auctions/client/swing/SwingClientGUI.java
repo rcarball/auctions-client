@@ -30,6 +30,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -216,37 +217,71 @@ public class SwingClientGUI extends JFrame {
 		}
 	}
 
+	// Shows the message of a failure captured by a SwingWorker (unwrapping the
+	// ExecutionException so the user sees the real cause).
+	private void showError(Exception e) {
+		Throwable cause = (e.getCause() != null) ? e.getCause() : e;
+		JOptionPane.showMessageDialog(this, cause.getMessage());
+	}
+
 	private void performLogout() {
-		try {
-			controller.logout();
-			JOptionPane.showMessageDialog(this, "Logged out successfully.");
-			System.exit(0);
-		} catch (RuntimeException e) {
-			JOptionPane.showMessageDialog(this, e.getMessage());
-		}
+		// Network call runs off the Event Dispatch Thread (EDT) so the UI does not freeze.
+		new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() {
+				controller.logout();
+				return null;
+			}
+
+			@Override
+			protected void done() {
+				try {
+					get();
+					JOptionPane.showMessageDialog(SwingClientGUI.this, "Logged out successfully.");
+					System.exit(0);
+				} catch (Exception e) {
+					showError(e);
+				}
+			}
+		}.execute();
 	}
 
 	private void loadCategories() {
-		try {
-			List<Category> categories = controller.getCategories();
+		new SwingWorker<List<Category>, Void>() {
+			@Override
+			protected List<Category> doInBackground() {
+				return controller.getCategories();
+			}
 
-			SwingUtilities.invokeLater(() -> {
-				categoryList.setListData(categories.toArray(new Category[0]));
-			});
-		} catch (RuntimeException e) {
-			JOptionPane.showMessageDialog(this, e.getMessage());
-		}
+			@Override
+			protected void done() {
+				try {
+					categoryList.setListData(get().toArray(new Category[0]));
+				} catch (Exception e) {
+					showError(e);
+				}
+			}
+		}.execute();
 	}
 
 	private void loadArticlesForCategory() {
 		Category selectedCategory = categoryList.getSelectedValue();
 		String currency = (String) currencyComboBox.getSelectedItem();
 
-		if (selectedCategory != null) {
-			try {
-				List<Article> articles = controller.getArticlesByCategory(selectedCategory.name(), currency);
+		if (selectedCategory == null) {
+			return;
+		}
 
-				SwingUtilities.invokeLater(() -> {
+		new SwingWorker<List<Article>, Void>() {
+			@Override
+			protected List<Article> doInBackground() {
+				return controller.getArticlesByCategory(selectedCategory.name(), currency);
+			}
+
+			@Override
+			protected void done() {
+				try {
+					List<Article> articles = get();
 					DefaultTableModel model = (DefaultTableModel) jtbleArticles.getModel();
 					model.setRowCount(0);
 
@@ -254,61 +289,76 @@ public class SwingClientGUI extends JFrame {
 						model.addRow(new Object[] { article.id(), article.title(),
 								formatPrice(article.currentPrice(), currency), article.bids() });
 					}
-				});
-			} catch (RuntimeException e) {
-				JOptionPane.showMessageDialog(this, e.getMessage());
+				} catch (Exception e) {
+					showError(e);
+				}
 			}
-		}
+		}.execute();
 	}
 
 	private void loadArticleDetails() {
 		int selectedRow = jtbleArticles.getSelectedRow();
 		String currency = (String) currencyComboBox.getSelectedItem();
 
-		if (selectedRow != -1) {
-			Long articleId = (Long) jtbleArticles.getValueAt(selectedRow, 0);
+		if (selectedRow == -1) {
+			return;
+		}
 
-			try {
-				Article article = controller.getArticleDetails(articleId, currency);
+		Long articleId = (Long) jtbleArticles.getValueAt(selectedRow, 0);
 
-				SwingUtilities.invokeLater(() -> {
+		new SwingWorker<Article, Void>() {
+			@Override
+			protected Article doInBackground() {
+				return controller.getArticleDetails(articleId, currency);
+			}
+
+			@Override
+			protected void done() {
+				try {
+					Article article = get();
 					lblArticleTitle.setText(article.title());
 					lblArticlePrice.setText(formatPrice(article.currentPrice(), currency));
 					lblArticleBids.setText(String.valueOf(article.bids()));
 					spinBidAmount.setValue((int) Math.ceil(article.currentPrice()) + 1);
 					btnBid.setEnabled(true);
-				});
-			} catch (RuntimeException e) {
-				JOptionPane.showMessageDialog(this, e.getMessage());
+				} catch (Exception e) {
+					showError(e);
+				}
 			}
-		}
+		}.execute();
 	}
 
 	private void placeBid() {
 		int selectedRow = jtbleArticles.getSelectedRow();
 		String currency = (String) currencyComboBox.getSelectedItem();
 
-		if (selectedRow != -1) {
-			Long articleId = (Long) jtbleArticles.getValueAt(selectedRow, 0);
-			Float bidAmount = ((Integer) spinBidAmount.getValue()).floatValue();
-
-			try {
-				controller.placeBid(articleId, bidAmount, currency);
-
-				SwingUtilities.invokeLater(() -> {
-					JOptionPane.showMessageDialog(this, "Bid placed successfully!");
-				});
-
-				loadArticleDetails();
-				loadArticlesForCategory();
-
-				SwingUtilities.invokeLater(() -> {
-					jtbleArticles.setRowSelectionInterval(selectedRow, selectedRow);
-				});
-			} catch (RuntimeException e) {
-				JOptionPane.showMessageDialog(this, e.getMessage());
-			}
+		if (selectedRow == -1) {
+			return;
 		}
+
+		Long articleId = (Long) jtbleArticles.getValueAt(selectedRow, 0);
+		Float bidAmount = ((Integer) spinBidAmount.getValue()).floatValue();
+
+		new SwingWorker<Void, Void>() {
+			@Override
+			protected Void doInBackground() {
+				controller.placeBid(articleId, bidAmount, currency);
+				return null;
+			}
+
+			@Override
+			protected void done() {
+				try {
+					get(); // Propagate any exception raised during the bid
+					JOptionPane.showMessageDialog(SwingClientGUI.this, "Bid placed successfully!");
+					// Refresh details and the article list (each runs on its own worker)
+					loadArticleDetails();
+					loadArticlesForCategory();
+				} catch (Exception e) {
+					showError(e);
+				}
+			}
+		}.execute();
 	}
 
 	private String formatPrice(float price, String currency) {

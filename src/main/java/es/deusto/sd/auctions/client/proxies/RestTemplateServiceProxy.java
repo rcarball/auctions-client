@@ -7,7 +7,11 @@ package es.deusto.sd.auctions.client.proxies;
 
 import java.util.List;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
@@ -58,9 +62,14 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
     @Override
     public String login(Credentials credentials) {
         String url = apiBaseUrl + "/auth/login";
-        
+
+        // Hash the password with SHA-1 before sending it. The password never travels
+        // in clear text; the server hashes it again before storing it.
+        Credentials hashedCredentials = new Credentials(
+                credentials.email(), DigestUtils.sha1Hex(credentials.password()));
+
         try {
-            return restTemplate.postForObject(url, credentials, String.class);
+            return restTemplate.postForObject(url, hashedCredentials, String.class);
         } catch (HttpStatusCodeException e) {
             switch (e.getStatusCode().value()) {
                 case 401 -> throw new RuntimeException("Login failed: Invalid credentials.");
@@ -83,13 +92,17 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Category> getAllCategories() {
         String url = apiBaseUrl + "/auctions/categories";
-        
+
         try {
-            return restTemplate.getForObject(url, List.class);
+            // Use exchange() with a ParameterizedTypeReference so the response is
+            // deserialized into a real List<Category>. getForObject(url, List.class)
+            // would return a List<LinkedHashMap> due to generic type erasure.
+            ResponseEntity<List<Category>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null, new ParameterizedTypeReference<List<Category>>() {});
+            return response.getBody();
         } catch (HttpStatusCodeException e) {
             switch (e.getStatusCode().value()) {
                 case 404 -> throw new RuntimeException("No categories found.");
@@ -98,13 +111,14 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<Article> getArticlesByCategory(String categoryName, String currency) {
         String url = apiBaseUrl + "/auctions/categories/" + categoryName + "/articles?currency=" + currency;
-        
+
         try {
-            return restTemplate.getForObject(url, List.class);
+            ResponseEntity<List<Article>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, null, new ParameterizedTypeReference<List<Article>>() {});
+            return response.getBody();
         } catch (HttpStatusCodeException e) {
             switch (e.getStatusCode().value()) {
                 case 404 -> throw new RuntimeException("Category not found: " + categoryName);
@@ -134,6 +148,8 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
     	String url = apiBaseUrl + "/auctions/articles/" + articleId + "/bid?amount=" +  amount + "&currency=" + currency;
         
         try {
+            // A 204 (successful bid) does not throw, so it is handled by simply
+            // returning normally after this call.
             restTemplate.postForObject(url, token, Void.class);
         } catch (HttpStatusCodeException e) {
             switch (e.getStatusCode().value()) {
@@ -141,7 +157,7 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
                 case 404 -> throw new RuntimeException("Article not found");
                 case 400 -> throw new RuntimeException("Invalid currency: " + currency);
                 case 409 -> throw new RuntimeException("Bid amount must be greater than the current price");
-                case 204 -> { /* Successful bid */ }
+                case 410 -> throw new RuntimeException("The auction has already ended");
                 case 500 -> throw new RuntimeException("Internal server error while processing bid");
                 default -> throw new RuntimeException("Bid failed with status code: " + e.getStatusCode());
             }
