@@ -62,7 +62,7 @@ La interfaz web ofrece además un **modo claro/oscuro (día/noche)**, basado en 
 
 ## ▶️ How to run
 
-Requires **JDK 21**. The clients talk to the **Auctions Server (Version 2)**, so make sure it is running on **http://localhost:8081** first (see `api.base.url` in `application.properties`).
+Requires **JDK 21**. The clients talk to the **Auctions Server (Version 2)**, so make sure it is running on **http://localhost:8082** first (see `api.base.url` in `application.properties`).
 
 From the project root, run one of the three clients:
 
