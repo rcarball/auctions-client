@@ -2,6 +2,8 @@
 
 # 💻 Auctions Client
 
+[![CI](https://github.com/rcarball/auctions-client/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/rcarball/auctions-client/actions/workflows/ci.yml)
+
 ## 📘 Description
 
 This repository contains the **Auctions Client**, part of the *Auctions Service* case study, a simplified version of eBay implemented as a distributed client-server application. It includes **three client implementations**, each designed to demonstrate different architectural and design aspects of software engineering:
