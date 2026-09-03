@@ -1,108 +1,133 @@
-🇪🇸 *Scroll down for the Spanish version / Descripción en castellano a continuación.*
-
 # 💻 Auctions Client
 
 [![CI](https://github.com/rcarball/auctions-client/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/rcarball/auctions-client/actions/workflows/ci.yml)
 
-## 📘 Description
+## English
 
-This repository contains the **Auctions Client**, part of the *Auctions Service* case study, a simplified version of eBay implemented as a distributed client-server application. It includes **three client implementations**, each designed to demonstrate different architectural and design aspects of software engineering:
+### Overview
 
-### 🧩 Client Versions
-1. 🖥️ **Console Client (CLI)** – a text-based interface for interacting with the auction server.  
-2. 🪟 **Java Swing Client** – a graphical desktop interface built with the Swing framework.  
-3. 🌐 **Web Client** – a Spring Boot web application using **Thymeleaf** and **Bootstrap** for modern, responsive presentation.
+This repository contains the client applications for the *Auctions Service* teaching case study: a deliberately simplified, distributed auction system used to introduce third-year Computer Engineering students to distributed application design and design patterns.
 
-The **Web Client** communicates with the Auctions Server via REST APIs and provides access through:  
-👉 **[http://localhost:8083/](http://localhost:8083/)**
+It includes three implementations of the same client role:
 
-The client provides a user-friendly interface to:
-- 🔐 Log in and log out.
-- 🗂️ Browse categories and auction items.
-- 🔎 View item details.
-- 💰 Place bids (requires authentication).
+- **Console client** — a scripted command-line interaction with the service.
+- **Swing client** — a desktop graphical interface using the Controller pattern.
+- **Web client** — a Spring MVC and Thymeleaf application that communicates with Auctions Server V2.
 
-It implements the following client-side design patterns:
-- 🎮 **Client Controller**
-- 🔁 **Service Proxy**
+The web client is available at [http://localhost:8083/](http://localhost:8083/). By default, all variants target Auctions Server V2 at `http://localhost:8082`.
 
-Security is enhanced through **SHA-1 encryption (Apache Commons)** before transmitting credentials to the server.  
-Session management uses a **stateful token** generated upon login and reused for bidding operations.
+### Requirements
 
-The web interface also offers a **light/dark (day/night) mode**, built on Bootstrap 5.3's native theming. A toggle button lets the user switch themes; the choice is remembered (via `localStorage`) and, by default, follows the operating system preference.
+- JDK 21
+- Internet access on the first Gradle run, so the wrapper can download its pinned Gradle version and dependencies.
 
----
+### Run on macOS and Linux
 
-## 📘 Descripción
-
-Este repositorio contiene el **Cliente de Subastas**, parte del caso práctico *Auctions Service*, una versión simplificada de eBay implementada como aplicación distribuida cliente-servidor. Incluye **tres implementaciones del cliente**, cada una orientada a ilustrar distintos aspectos de arquitectura y diseño de software:
-
-### 🧩 Versiones del Cliente
-1. 🖥️ **Cliente de Consola (CLI)** – interfaz de texto para interactuar con el servidor de subastas.  
-2. 🪟 **Cliente Java Swing** – interfaz gráfica de escritorio desarrollada con el framework Swing.  
-3. 🌐 **Cliente Web** – aplicación web basada en **Spring Boot**, **Thymeleaf** y **Bootstrap** para una presentación moderna y adaptable.
-
-El **Cliente Web** se comunica con el Servidor de Subastas mediante servicios REST y es accesible a través de:  
-👉 **[http://localhost:8083/](http://localhost:8083/)**
-
-Ofrece una interfaz sencilla e intuitiva para:
-- 🔐 Iniciar y cerrar sesión.  
-- 🗂️ Consultar categorías y artículos en subasta.  
-- 🔎 Ver los detalles de los artículos.  
-- 💰 Realizar pujas (requiere autenticación).
-
-Aplica los siguientes patrones de diseño del lado cliente:
-- 🎮 **Client Controller**
-- 🔁 **Service Proxy**
-
-Incluye cifrado de contraseñas mediante **SHA-1 (Apache Commons)** antes del envío al servidor.  
-La gestión de sesión se basa en un **token con estado (stateful)** generado en el login y reutilizado durante las operaciones de puja.
-
-La interfaz web ofrece además un **modo claro/oscuro (día/noche)**, basado en el soporte nativo de temas de Bootstrap 5.3. Un botón permite alternar el tema; la elección se recuerda (mediante `localStorage`) y, por defecto, sigue la preferencia del sistema operativo.
-
----
-
-## ▶️ How to run
-
-Requires **JDK 21**. The clients talk to the **Auctions Server (Version 2)**, so make sure it is running on **http://localhost:8082** first (see `api.base.url` in `application.properties`).
-
-From the project root, run one of the three clients:
-
-- 🌐 **Web client** (default) — served at **http://localhost:8083**:
+From the repository root, make the Gradle wrapper executable if necessary (for example, after extracting a ZIP file), then select one client:
 
 ```bash
+chmod +x gradlew
+
+# Web client — http://localhost:8083/
 ./gradlew bootRun
-```
 
-- 🖥️ **Console client**:
-
-```bash
+# Console client
 ./gradlew runConsoleClient
-```
 
-- 🪟 **Swing client**:
-
-```bash
+# Swing client
 ./gradlew runSwingClient
 ```
 
-> ℹ️ The Gradle **wrapper is included**, so no local Gradle installation is required (on Windows use `gradlew.bat`). The first run downloads the pinned Gradle version. To use it in **Eclipse / Spring Tool Suite**: *File → Import… → Gradle → Existing Gradle Project*, then run `WebClientApplication`, `ConsoleClient`, or `SwingClientGUI`.
+On macOS and Linux, ensure that a graphical desktop session is available before launching the Swing client. The client expects Auctions Server V2 to be running at `http://localhost:8082`; change `api.base.url` in `src/main/resources/application.properties` to use another server URL.
 
----
+On Windows, use `gradlew.bat` in place of `./gradlew`.
 
-## ✒️ Authors / Autoría
+### Tests and continuous integration
 
-**Carballedo, R. & Cortázar, R.**  
-*Faculty of Engineering – University of Deusto*
+Run the automated test suite with:
 
----
+```bash
+./gradlew test
+```
 
-## ⚖️ License / Licencia
+The suite covers the console workflow, the Swing controller, the web controller's session and redirect behaviour, and the REST proxy's request/error mapping. Network dependencies are replaced with test doubles, so the Auctions Server does not need to be running.
+
+The [CI workflow](.github/workflows/ci.yml) runs the same command for pushes to `master` and pull requests. The `master` branch requires the `test` check to pass before changes are integrated.
+
+### License and authorship
 
 This project is licensed under the [MIT License](LICENSE).
 
-Este proyecto se distribuye bajo la [licencia MIT](LICENSE).
+Faculty of Engineering, University of Deusto — Academic year 2026–27.
+
+### AI assistance and review disclosure
+
+The initial version of this client was developed with partial assistance from Claude Sonnet 3.5 (Anthropic) and GitHub Copilot.
+
+From July to September 2026, the codebase and documentation were reviewed and audited using Claude Opus (Anthropic) and Codex (OpenAI). The resulting version was tested and refined to identify and correct issues within the scope of those verification activities.
 
 ---
 
-> 🧠 *This description was originally generated with the assistance of ChatGPT 5. It was reviewed and updated in July 2026 with the assistance of Claude Opus 4.8 (Anthropic).*
+## Español
+
+### Descripción general
+
+Este repositorio contiene las aplicaciones cliente del caso docente *Auctions Service*: un sistema de subastas distribuido, deliberadamente simplificado, utilizado para introducir al alumnado de tercero de Ingeniería Informática en el diseño de aplicaciones distribuidas y los patrones de diseño.
+
+Incluye tres implementaciones del mismo rol de cliente:
+
+- **Cliente de consola** — interacción guiada en línea de comandos con el servicio.
+- **Cliente Swing** — interfaz gráfica de escritorio que emplea el patrón Controller.
+- **Cliente web** — aplicación Spring MVC y Thymeleaf que se comunica con Auctions Server V2.
+
+El cliente web está disponible en [http://localhost:8083/](http://localhost:8083/). De forma predeterminada, las tres variantes usan Auctions Server V2 en `http://localhost:8082`.
+
+### Requisitos
+
+- JDK 21.
+- Acceso a Internet en la primera ejecución de Gradle, para descargar la versión fijada del wrapper y las dependencias.
+
+### Ejecución en macOS y Linux
+
+Desde la raíz del repositorio, da permiso de ejecución al wrapper si fuera necesario —por ejemplo, tras extraer un ZIP— y elige el cliente:
+
+```bash
+chmod +x gradlew
+
+# Cliente web — http://localhost:8083/
+./gradlew bootRun
+
+# Cliente de consola
+./gradlew runConsoleClient
+
+# Cliente Swing
+./gradlew runSwingClient
+```
+
+En macOS y Linux, el cliente Swing requiere una sesión gráfica de escritorio. El cliente espera que Auctions Server V2 esté disponible en `http://localhost:8082`; para utilizar otro servidor, modifica `api.base.url` en `src/main/resources/application.properties`.
+
+En Windows, utiliza `gradlew.bat` en lugar de `./gradlew`.
+
+### Pruebas e integración continua
+
+Ejecuta la batería automatizada con:
+
+```bash
+./gradlew test
+```
+
+Las pruebas cubren el flujo de consola, el controlador Swing, las sesiones y redirecciones del controlador web, y el mapeo de peticiones y errores del proxy REST. Las dependencias de red se sustituyen por dobles de prueba, por lo que no es necesario arrancar Auctions Server.
+
+El [flujo de CI](.github/workflows/ci.yml) ejecuta el mismo comando en cada cambio a `master` y en cada pull request. La rama `master` requiere que la comprobación `test` sea correcta antes de integrar cambios.
+
+### Licencia y autoría
+
+Este proyecto se distribuye bajo la [licencia MIT](LICENSE).
+
+Facultad de Ingeniería, Universidad de Deusto — Curso académico 2026–27.
+
+### Declaración sobre asistencia de IA y revisión
+
+La versión inicial de este cliente se desarrolló con asistencia parcial de Claude Sonnet 3.5 (Anthropic) y GitHub Copilot.
+
+Entre julio y septiembre de 2026, el código y la documentación se revisaron y auditaron con Claude Opus (Anthropic) y Codex (OpenAI). La versión resultante fue probada y refinada para identificar y corregir incidencias dentro del alcance de dichas actividades de verificación.
