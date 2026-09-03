@@ -21,7 +21,24 @@ The web client is available at [http://localhost:8083/](http://localhost:8083/).
 - JDK 21
 - Internet access on the first Gradle run, so the wrapper can download its pinned Gradle version and dependencies.
 
-### Run on macOS and Linux
+### Run on Windows, macOS and Linux
+
+#### Windows
+
+From PowerShell, select one client:
+
+```powershell
+# Web client — http://localhost:8083/
+.\gradlew.bat bootRun
+
+# Console client
+.\gradlew.bat runConsoleClient
+
+# Swing client
+.\gradlew.bat runSwingClient
+```
+
+#### macOS
 
 From the repository root, make the Gradle wrapper executable if necessary (for example, after extracting a ZIP file), then select one client:
 
@@ -38,9 +55,18 @@ chmod +x gradlew
 ./gradlew runSwingClient
 ```
 
+#### Linux
+
+Use the same commands as macOS:
+
+```bash
+chmod +x gradlew  # only if needed
+./gradlew bootRun # or runConsoleClient / runSwingClient
+```
+
 On macOS and Linux, ensure that a graphical desktop session is available before launching the Swing client. The client expects Auctions Server V2 to be running at `http://localhost:8082`; change `api.base.url` in `src/main/resources/application.properties` to use another server URL.
 
-On Windows, use `gradlew.bat` in place of `./gradlew`.
+The Gradle wrapper downloads its pinned Gradle version and dependencies on its first run.
 
 ### Tests and continuous integration
 
@@ -87,7 +113,24 @@ El cliente web está disponible en [http://localhost:8083/](http://localhost:808
 - JDK 21.
 - Acceso a Internet en la primera ejecución de Gradle, para descargar la versión fijada del wrapper y las dependencias.
 
-### Ejecución en macOS y Linux
+### Ejecución en Windows, macOS y Linux
+
+#### Windows
+
+Desde PowerShell, elige el cliente:
+
+```powershell
+# Cliente web — http://localhost:8083/
+.\gradlew.bat bootRun
+
+# Cliente de consola
+.\gradlew.bat runConsoleClient
+
+# Cliente Swing
+.\gradlew.bat runSwingClient
+```
+
+#### macOS
 
 Desde la raíz del repositorio, da permiso de ejecución al wrapper si fuera necesario —por ejemplo, tras extraer un ZIP— y elige el cliente:
 
@@ -104,9 +147,18 @@ chmod +x gradlew
 ./gradlew runSwingClient
 ```
 
+#### Linux
+
+Utiliza los mismos comandos que en macOS:
+
+```bash
+chmod +x gradlew  # solo si fuera necesario
+./gradlew bootRun # o runConsoleClient / runSwingClient
+```
+
 En macOS y Linux, el cliente Swing requiere una sesión gráfica de escritorio. El cliente espera que Auctions Server V2 esté disponible en `http://localhost:8082`; para utilizar otro servidor, modifica `api.base.url` en `src/main/resources/application.properties`.
 
-En Windows, utiliza `gradlew.bat` en lugar de `./gradlew`.
+El wrapper de Gradle descarga su versión fijada y las dependencias en la primera ejecución.
 
 ### Pruebas e integración continua
 
