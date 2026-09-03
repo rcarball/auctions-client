@@ -23,8 +23,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
-	// Apache Commons Codec for SHA-1 password hashing (version managed by Spring Boot)
+    // Apache Commons Codec for SHA-1 password hashing (version managed by Spring Boot)
     implementation 'commons-codec:commons-codec'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }
 
 // Task to run the console client

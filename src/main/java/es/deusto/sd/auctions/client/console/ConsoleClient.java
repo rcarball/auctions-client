@@ -27,7 +27,7 @@ import es.deusto.sd.auctions.client.proxies.IAuctionsServiceProxy;
  */
 public class ConsoleClient {
 	// Service proxy for interacting with the AuctionsService using HTTP-based implementation
-	private final IAuctionsServiceProxy serviceProxy = new HttpServiceProxy();	
+	private final IAuctionsServiceProxy serviceProxy;
 	// Token to be used during the session
 	private String token;
 	// Default email and password for login
@@ -35,6 +35,14 @@ public class ConsoleClient {
 	private String defaultPassword = "Bl@ckWid0w2023";
 	
 	private static final Logger logger = LoggerFactory.getLogger(ConsoleClient.class);
+
+	public ConsoleClient() {
+		this(new HttpServiceProxy());
+	}
+
+	public ConsoleClient(IAuctionsServiceProxy serviceProxy) {
+		this.serviceProxy = serviceProxy;
+	}
 
 	public static void main(String[] args) {
 		ConsoleClient client = new ConsoleClient();

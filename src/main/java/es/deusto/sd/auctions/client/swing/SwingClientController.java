@@ -31,9 +31,17 @@ import es.deusto.sd.auctions.client.proxies.IAuctionsServiceProxy;
  */
 public class SwingClientController {
 	// Service proxy for interacting with the AuctionsService using HTTP-based implementation
-	private IAuctionsServiceProxy serviceProxy = new HttpServiceProxy();
+	private final IAuctionsServiceProxy serviceProxy;
 	// Token to be used during the session
     private String token;
+
+	public SwingClientController() {
+		this(new HttpServiceProxy());
+	}
+
+	public SwingClientController(IAuctionsServiceProxy serviceProxy) {
+		this.serviceProxy = serviceProxy;
+	}
 
 	public boolean login(String email, String password) {
         try {
