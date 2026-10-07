@@ -1,11 +1,13 @@
 /**
- * This code was originally generated with Claude Sonnet 3.5 and adapted using GitHub
- * Copilot. It was reviewed, corrected and updated in July 2026 with the
- * assistance of Claude Opus 4.8 (Anthropic).
+ * Initially generated with Claude Sonnet 3.5 and adapted using GitHub Copilot.
+ * Reviewed and updated with assistance from Claude Opus 4.8 (July 2026)
+ * and ChatGPT-6.1 Sol (October 2026).
  */
 package es.deusto.sd.auctions.client.proxies;
 
 import java.util.List;
+import java.net.URI;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -102,7 +104,7 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
             // would return a List<LinkedHashMap> due to generic type erasure.
             ResponseEntity<List<Category>> response = restTemplate.exchange(
                     url, HttpMethod.GET, null, new ParameterizedTypeReference<List<Category>>() {});
-            return response.getBody();
+            return response.getBody() != null ? response.getBody() : List.of();
         } catch (HttpStatusCodeException e) {
             switch (e.getStatusCode().value()) {
                 case 404 -> throw new RuntimeException("No categories found.");
@@ -113,12 +115,14 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
 
     @Override
     public List<Article> getArticlesByCategory(String categoryName, String currency) {
-        String url = apiBaseUrl + "/auctions/categories/" + categoryName + "/articles?currency=" + currency;
+        URI url = UriComponentsBuilder.fromUriString(apiBaseUrl)
+                .pathSegment("auctions", "categories", categoryName, "articles")
+                .queryParam("currency", currency).build().encode().toUri();
 
         try {
             ResponseEntity<List<Article>> response = restTemplate.exchange(
                     url, HttpMethod.GET, null, new ParameterizedTypeReference<List<Article>>() {});
-            return response.getBody();
+            return response.getBody() != null ? response.getBody() : List.of();
         } catch (HttpStatusCodeException e) {
             switch (e.getStatusCode().value()) {
                 case 404 -> throw new RuntimeException("Category not found: " + categoryName);
@@ -130,7 +134,9 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
 
     @Override
     public Article getArticleDetails(Long articleId, String currency) {
-        String url = apiBaseUrl + "/auctions/articles/" + articleId + "/details?currency=" + currency;
+        URI url = UriComponentsBuilder.fromUriString(apiBaseUrl)
+                .pathSegment("auctions", "articles", articleId.toString(), "details")
+                .queryParam("currency", currency).build().encode().toUri();
         
         try {
             return restTemplate.getForObject(url, Article.class);
@@ -145,7 +151,9 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
     
     @Override
     public void makeBid(Long articleId, Float amount, String currency, String token) {
-    	String url = apiBaseUrl + "/auctions/articles/" + articleId + "/bid?amount=" +  amount + "&currency=" + currency;
+        URI url = UriComponentsBuilder.fromUriString(apiBaseUrl)
+                .pathSegment("auctions", "articles", articleId.toString(), "bid")
+                .queryParam("amount", amount).queryParam("currency", currency).build().encode().toUri();
         
         try {
             // A 204 (successful bid) does not throw, so it is handled by simply
@@ -155,7 +163,7 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
             switch (e.getStatusCode().value()) {
                 case 401 -> throw new RuntimeException("User not authenticated");
                 case 404 -> throw new RuntimeException("Article not found");
-                case 400 -> throw new RuntimeException("Invalid currency: " + currency);
+                case 400 -> throw new RuntimeException("Invalid currency or bid amount: " + currency);
                 case 409 -> throw new RuntimeException("Bid amount must be greater than the current price");
                 case 410 -> throw new RuntimeException("The auction has already ended");
                 case 500 -> throw new RuntimeException("Internal server error while processing bid");

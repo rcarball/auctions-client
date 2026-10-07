@@ -1,3 +1,7 @@
+/**
+ * Entirely generated with ChatGPT-6.1 in September and October 2026.
+ * Reviewed and updated with assistance from ChatGPT-6.1 Sol (October 2026).
+ */
 package es.deusto.sd.auctions.client.web;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -90,6 +94,16 @@ class WebClientControllerTest {
     }
 
     @Test
+    void rejectsExternalRedirectsAfterLogin() throws Exception {
+        when(proxy.login(any(Credentials.class))).thenReturn("token-123");
+        for (String target : List.of("https://example.org", "//example.org", "/\\example.org")) {
+            mockMvc.perform(post("/login").param("email", "student@example.com")
+                    .param("password", "password").param("redirectUrl", target))
+                    .andExpect(redirectedUrl("/"));
+        }
+    }
+
+    @Test
     void failedLoginReturnsTheLoginViewWithAnError() throws Exception {
         when(proxy.login(any(Credentials.class))).thenThrow(new RuntimeException("Invalid credentials"));
 
@@ -132,4 +146,24 @@ class WebClientControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(flash().attribute("errorMessage", "Failed to place bid: The auction has ended"));
     }
+    @Test
+    void logoutClearsTheLocalSessionWhenTheServerRejectsTheToken() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("token", "expired-token");
+        doThrow(new RuntimeException("Invalid token")).when(proxy).logout("expired-token");
+        mockMvc.perform(get("/logout").session(session).param("redirectUrl", "//example.org"))
+                .andExpect(redirectedUrl("/"))
+                .andExpect(flash().attribute("errorMessage", "Logout failed: Invalid token"));
+        org.junit.jupiter.api.Assertions.assertNull(session.getAttribute("token"));
+    }
+
+    @Test
+    void failedLoginPreservesTheOriginalCurrencyAndPage() throws Exception {
+        when(proxy.login(any(Credentials.class))).thenThrow(new RuntimeException("Invalid credentials"));
+        mockMvc.perform(post("/login").param("email", "student@example.com")
+                .param("password", "invalid").param("redirectUrl", "/article/7?currency=GBP"))
+                .andExpect(view().name("login"))
+                .andExpect(model().attribute("redirectUrl", "/article/7?currency=GBP"));
+    }
+
 }

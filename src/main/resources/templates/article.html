@@ -1,4 +1,4 @@
-<!-- Originally generated with ChatGPT 4o mini; reviewed and updated in July 2026 with Claude Opus 4.8 (Anthropic). -->
+<!-- Initially generated with ChatGPT 4o mini. Reviewed and updated with assistance from Claude Opus 4.8 (July 2026) and ChatGPT-6.1 Sol (October 2026). -->
 
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
@@ -12,11 +12,11 @@
 			document.documentElement.setAttribute('data-bs-theme', theme);
 		})();
 	</script>
-    <title >Article Details: [[${article.title}]]</title>
+    <title th:text="${article != null ? article.title : 'Article not found'}">Article Details</title>
 	<!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 	<!-- Font-awesome -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.3.1/css/all.min.css">
 </head>
 <body>
 	<!-- Header with logo and name -->
@@ -33,7 +33,7 @@
 	<nav class="navbar bg-body-tertiary shadow-sm">
 	    <div class="container-fluid d-flex align-items-center">
 	        <!-- Back button -->
-			<a th:href="@{/category/{name}(name=${article.categoryName})}" class="btn btn-secondary btn-sm d-flex align-items-center">
+			<a th:if="${article != null}" th:href="@{/category/{name}(name=${article.categoryName})}" class="btn btn-secondary btn-sm d-flex align-items-center">
 			    <i class="fas fa-arrow-left me-2"></i> Back
 			</a>
 
@@ -49,7 +49,7 @@
 	            </a>
 	            <!-- Day/Night toggle button -->
 	            <button type="button" id="themeToggle" class="btn btn-outline-secondary btn-sm ms-2"
-	                    title="Cambiar modo claro/oscuro" aria-label="Toggle theme">
+	                    title="Toggle light/dark mode" aria-label="Toggle theme">
 	                <i class="fas fa-moon"></i>
 	            </button>
 	        </div>
@@ -57,6 +57,7 @@
 	</nav>
 
 	<div class="container mt-4">
+        <p th:if="${errorMessage}" th:text="${errorMessage}" class="text-danger mt-3"></p>
         <!-- Article title and currency select -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 th:if="${article != null}" th:text="${article.title}">Article Title</h1>
@@ -92,7 +93,7 @@
 				        <input type="number" id="amount" name="amount" class="form-control"
 				               th:value="${article.currentPrice + 1}"
 				               th:min="${article.currentPrice + 1}"
-				               step="0.5" required />
+				               step="0.01" required />
 				        <span class="ms-2" th:if="${selectedCurrency == 'EUR'}"><i class="fas fa-euro-sign"></i></span>
 				        <span class="ms-2" th:if="${selectedCurrency == 'USD'}"><i class="fas fa-dollar-sign"></i></span>
 				        <span class="ms-2" th:if="${selectedCurrency == 'GBP'}"><i class="fas fa-pound-sign"></i></span>
@@ -103,7 +104,6 @@
 	                <i class="fas fa-gavel me-2"></i> Place Bid
 	            </button>
 	        </form>
-	        <p th:if="${errorMessage}" th:text="${errorMessage}" class="text-danger mt-4"></p>
 	        <p th:if="${successMessage}" th:text="${successMessage}" class="text-success mt-4"></p>
 	    </div>
 	    <p th:if="${token == null}" class="text-danger">Please <a th:href="@{/login(redirectUrl=${currentUrl})}">login</a> to place a bid.</p>
@@ -117,7 +117,7 @@
 	</footer>
 
 	<!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 	<!-- Day/Night toggle behaviour -->
 	<script>
 		(function () {

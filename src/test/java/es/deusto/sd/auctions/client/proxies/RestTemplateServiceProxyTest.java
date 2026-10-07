@@ -1,3 +1,7 @@
+/**
+ * Entirely generated with ChatGPT-6.1 in September and October 2026.
+ * Reviewed and updated with assistance from ChatGPT-6.1 Sol (October 2026).
+ */
 package es.deusto.sd.auctions.client.proxies;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -54,7 +58,7 @@ class RestTemplateServiceProxyTest {
     @Test
     void bidMapsAConflictResponseToTheDomainMessage() {
         when(httpException.getStatusCode()).thenReturn(HttpStatus.CONFLICT);
-        when(restTemplate.postForObject(eq("http://auctions.example/auctions/articles/7/bid?amount=100.0&currency=EUR"),
+        when(restTemplate.postForObject(eq(java.net.URI.create("http://auctions.example/auctions/articles/7/bid?amount=100.0&currency=EUR")),
                 eq("token-123"), eq(Void.class))).thenThrow(httpException);
 
         RuntimeException exception = assertThrows(RuntimeException.class,

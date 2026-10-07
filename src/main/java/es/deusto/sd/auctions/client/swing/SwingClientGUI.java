@@ -1,7 +1,7 @@
 /**
- * This code was originally generated with Claude Sonnet 3.5 and adapted using GitHub
- * Copilot. It was reviewed, corrected and updated in July 2026 with the
- * assistance of Claude Opus 4.8 (Anthropic).
+ * Initially generated with Claude Sonnet 3.5 and adapted using GitHub Copilot.
+ * Reviewed and updated with assistance from Claude Opus 4.8 (July 2026)
+ * and ChatGPT-6.1 Sol (October 2026).
  */
 package es.deusto.sd.auctions.client.swing;
 
@@ -62,6 +62,8 @@ public class SwingClientGUI extends JFrame {
 	private JLabel lblArticleBids;
 	private JSpinner spinBidAmount;
 	private JButton btnBid;
+	private long categoryRequest;
+	private long detailsRequest;
 
 	private static final String[] CURRENCIES = { "EUR", "USD", "GBP", "JPY" };
 
@@ -85,7 +87,6 @@ public class SwingClientGUI extends JFrame {
 		currencyComboBox = new JComboBox<>(CURRENCIES);
 		currencyComboBox.setSelectedItem("EUR"); // Default currency
 		currencyComboBox.addActionListener(e -> {
-			loadArticleDetails();
 			loadArticlesForCategory();
 		});
 		topPanel.add(currencyComboBox, BorderLayout.WEST);
@@ -267,6 +268,13 @@ public class SwingClientGUI extends JFrame {
 	private void loadArticlesForCategory() {
 		Category selectedCategory = categoryList.getSelectedValue();
 		String currency = (String) currencyComboBox.getSelectedItem();
+		long request = ++categoryRequest;
+		++detailsRequest;
+		btnBid.setEnabled(false);
+		lblArticleTitle.setText("");
+		lblArticlePrice.setText("");
+		lblArticleBids.setText("");
+		((DefaultTableModel) jtbleArticles.getModel()).setRowCount(0);
 
 		if (selectedCategory == null) {
 			return;
@@ -280,6 +288,7 @@ public class SwingClientGUI extends JFrame {
 
 			@Override
 			protected void done() {
+				if (request != categoryRequest) return;
 				try {
 					List<Article> articles = get();
 					DefaultTableModel model = (DefaultTableModel) jtbleArticles.getModel();
@@ -299,6 +308,8 @@ public class SwingClientGUI extends JFrame {
 	private void loadArticleDetails() {
 		int selectedRow = jtbleArticles.getSelectedRow();
 		String currency = (String) currencyComboBox.getSelectedItem();
+		long request = ++detailsRequest;
+		btnBid.setEnabled(false);
 
 		if (selectedRow == -1) {
 			return;
@@ -314,6 +325,7 @@ public class SwingClientGUI extends JFrame {
 
 			@Override
 			protected void done() {
+				if (request != detailsRequest) return;
 				try {
 					Article article = get();
 					lblArticleTitle.setText(article.title());

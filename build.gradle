@@ -1,8 +1,10 @@
+// Reviewed and updated with assistance from Claude Opus 4.8 (July 2026)
+// and ChatGPT-6.1 Sol (October 2026).
 plugins {
 	id 'java'
 	id 'application'
-	id 'org.springframework.boot' version '4.1.0'
-	id 'io.spring.dependency-management' version '1.1.6'
+	id 'org.springframework.boot' version '4.1.1'
+	id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'es.deusto.sd.auctions.client'
@@ -23,8 +25,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
-    // Apache Commons Codec for SHA-1 password hashing (version managed by Spring Boot)
-    implementation 'commons-codec:commons-codec'
+    // Latest stable Commons Codec, explicitly overriding Spring Boot's managed version.
+    implementation 'commons-codec:commons-codec:1.22.1'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
@@ -52,4 +54,12 @@ task runSwingClient(type: JavaExec) {
 // Spring Boot configuration, defaults to running the web client
 bootRun {
     mainClass.set("es.deusto.sd.auctions.client.web.WebClientApplication")
+}
+
+application {
+    mainClass = "es.deusto.sd.auctions.client.web.WebClientApplication"
+}
+
+springBoot {
+    mainClass = "es.deusto.sd.auctions.client.web.WebClientApplication"
 }

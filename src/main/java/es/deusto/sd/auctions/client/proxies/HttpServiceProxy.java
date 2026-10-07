@@ -1,7 +1,7 @@
 /**
- * This code was originally generated with Claude Sonnet 3.5 and adapted using GitHub
- * Copilot. It was reviewed, corrected and updated in July 2026 with the
- * assistance of Claude Opus 4.8 (Anthropic).
+ * Initially generated with Claude Sonnet 3.5 and adapted using GitHub Copilot.
+ * Reviewed and updated with assistance from Claude Opus 4.8 (July 2026)
+ * and ChatGPT-6.1 Sol (October 2026).
  */
 package es.deusto.sd.auctions.client.proxies;
 
@@ -13,6 +13,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.time.Duration;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -50,12 +51,17 @@ import es.deusto.sd.auctions.client.data.Credentials;
  * (Description generated with ChatGPT 4o mini)
  */
 public class HttpServiceProxy implements IAuctionsServiceProxy {
-    private static final String BASE_URL = "http://localhost:8082";
+    private final String baseUrl;
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
     public HttpServiceProxy() {
-        this.httpClient = HttpClient.newHttpClient();
+        this(ClientConfiguration.apiBaseUrl());
+    }
+
+    public HttpServiceProxy(String baseUrl) {
+        this.baseUrl = baseUrl.replaceAll("/+$", "");
+        this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
         this.objectMapper = new ObjectMapper();
     }
 
@@ -68,8 +74,8 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
                     credentials.email(), DigestUtils.sha1Hex(credentials.password()));
             String credentialsJson = objectMapper.writeValueAsString(hashedCredentials);
 
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/auth/login"))
+            HttpRequest request = HttpRequest.newBuilder().timeout(Duration.ofSeconds(5))
+                .uri(URI.create(baseUrl + "/auth/login"))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(credentialsJson))
                 .build();
@@ -81,7 +87,10 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
                 case 401 -> throw new RuntimeException("Unauthorized: Invalid credentials");
                 default -> throw new RuntimeException("Login failed with status code: " + response.statusCode());
             };
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Request interrupted", e);
+        } catch (IOException e) {
             throw new RuntimeException("Error during login", e);
         }
     }
@@ -89,9 +98,9 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
     @Override
     public void logout(String token) {
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/auth/logout"))
-                .header("Content-Type", "application/json")
+            HttpRequest request = HttpRequest.newBuilder().timeout(Duration.ofSeconds(5))
+                .uri(URI.create(baseUrl + "/auth/logout"))
+                .header("Content-Type", "text/plain")
                 .POST(HttpRequest.BodyPublishers.ofString(token))
                 .build();
 
@@ -102,7 +111,10 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
                 case 401 -> throw new RuntimeException("Unauthorized: Invalid token, logout failed");
                 default -> throw new RuntimeException("Logout failed with status code: " + response.statusCode());
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Request interrupted", e);
+        } catch (IOException e) {
             throw new RuntimeException("Error during logout", e);
         }
     }
@@ -110,8 +122,8 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
     @Override
     public List<Category> getAllCategories() {
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/auctions/categories"))
+            HttpRequest request = HttpRequest.newBuilder().timeout(Duration.ofSeconds(5))
+                .uri(URI.create(baseUrl + "/auctions/categories"))
                 .header("Content-Type", "application/json")
                 .GET()
                 .build();
@@ -120,11 +132,14 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
 
             return switch (response.statusCode()) {
                 case 200 -> objectMapper.readValue(response.body(), new TypeReference<List<Category>>() {});
-                case 204 -> throw new RuntimeException("No Content: No categories found");
+                case 204 -> List.of();
                 case 500 -> throw new RuntimeException("Internal server error while fetching categories");
                 default -> throw new RuntimeException("Failed to fetch categories with status code: " + response.statusCode());
             };
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Request interrupted", e);
+        } catch (IOException e) {
             throw new RuntimeException("Error while fetching categories", e);
         }
     }
@@ -133,10 +148,10 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
     public List<Article> getArticlesByCategory(String categoryName, String currency) {
         try {
             // Encode the category name to handle spaces and special characters
-            String encodedCategoryName = URLEncoder.encode(categoryName, StandardCharsets.UTF_8);
+            String encodedCategoryName = URLEncoder.encode(categoryName, StandardCharsets.UTF_8).replace("+", "%20");
         	
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/auctions/categories/" + encodedCategoryName + "/articles?currency=" + currency))
+            HttpRequest request = HttpRequest.newBuilder().timeout(Duration.ofSeconds(5))
+                .uri(URI.create(baseUrl + "/auctions/categories/" + encodedCategoryName + "/articles?currency=" + URLEncoder.encode(currency, StandardCharsets.UTF_8)))
                 .header("Content-Type", "application/json")
                 .GET()
                 .build();
@@ -145,13 +160,16 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
 
             return switch (response.statusCode()) {
                 case 200 -> objectMapper.readValue(response.body(), new TypeReference<List<Article>>() {});
-                case 204 -> throw new RuntimeException("No Content: Category has no articles");
+                case 204 -> List.of();
                 case 400 -> throw new RuntimeException("Bad Request: Currency not supported");
                 case 404 -> throw new RuntimeException("Not Found: Category not found");
                 case 500 -> throw new RuntimeException("Internal server error while fetching articles");
                 default -> throw new RuntimeException("Failed to fetch articles with status code: " + response.statusCode());
             };
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Request interrupted", e);
+        } catch (IOException e) {
             throw new RuntimeException("Error while fetching articles by category", e);
         }
     }
@@ -159,8 +177,8 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
     @Override
     public Article getArticleDetails(Long articleId, String currency) {
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/auctions/articles/" + articleId + "/details?currency=" + currency))
+            HttpRequest request = HttpRequest.newBuilder().timeout(Duration.ofSeconds(5))
+                .uri(URI.create(baseUrl + "/auctions/articles/" + articleId + "/details?currency=" + URLEncoder.encode(currency, StandardCharsets.UTF_8)))
                 .header("Content-Type", "application/json")
                 .GET()
                 .build();
@@ -174,7 +192,10 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
                 case 500 -> throw new RuntimeException("Internal server error while fetching article details");
                 default -> throw new RuntimeException("Failed to fetch article details with status code: " + response.statusCode());
             };
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Request interrupted", e);
+        } catch (IOException e) {
             throw new RuntimeException("Error while fetching article details", e);
         }
     }
@@ -182,9 +203,9 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
     @Override
     public void makeBid(Long articleId, Float amount, String currency, String token) {
         try {
-            HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(BASE_URL + "/auctions/articles/" + articleId + "/bid?amount=" + amount + "&currency=" + currency))
-                .header("Content-Type", "application/json")
+            HttpRequest request = HttpRequest.newBuilder().timeout(Duration.ofSeconds(5))
+                .uri(URI.create(baseUrl + "/auctions/articles/" + articleId + "/bid?amount=" + amount + "&currency=" + URLEncoder.encode(currency, StandardCharsets.UTF_8)))
+                .header("Content-Type", "text/plain")
                 .POST(HttpRequest.BodyPublishers.ofString(token))
                 .build();
 
@@ -192,7 +213,7 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
 
             switch (response.statusCode()) {
                 case 204 -> {} // Bid placed successfully
-                case 400 -> throw new RuntimeException("Bad Request: Currency not supported");
+                case 400 -> throw new RuntimeException("Bad Request: Currency not supported or bid amount is invalid");
                 case 401 -> throw new RuntimeException("Unauthorized: User not authenticated");
                 case 404 -> throw new RuntimeException("Not Found: Article not found");
                 case 409 -> throw new RuntimeException("Conflict: Bid amount must be greater than the current price");
@@ -200,7 +221,10 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
                 case 500 -> throw new RuntimeException("Internal server error while placing a bid");
                 default -> throw new RuntimeException("Failed to make a bid with status code: " + response.statusCode());
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Request interrupted", e);
+        } catch (IOException e) {
             throw new RuntimeException("Error while making a bid", e);
         }
     }

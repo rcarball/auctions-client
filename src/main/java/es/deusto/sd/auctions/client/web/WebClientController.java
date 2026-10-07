@@ -1,11 +1,12 @@
 /**
- * This code was originally generated with Claude Sonnet 3.5 and adapted using GitHub
- * Copilot. It was reviewed, corrected and updated in July 2026 with the
- * assistance of Claude Opus 4.8 (Anthropic).
+ * Initially generated with Claude Sonnet 3.5 and adapted using GitHub Copilot.
+ * Reviewed and updated with assistance from Claude Opus 4.8 (July 2026)
+ * and ChatGPT-6.1 Sol (October 2026).
  */
 package es.deusto.sd.auctions.client.web;
 
 import java.util.List;
+import java.net.URI;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import es.deusto.sd.auctions.client.data.Article;
 import es.deusto.sd.auctions.client.data.Category;
@@ -91,7 +92,8 @@ public class WebClientController {
 	// a @Controller is a singleton.
 	@ModelAttribute
 	public void addAttributes(Model model, HttpServletRequest request, HttpSession session) {
-		String currentUrl = ServletUriComponentsBuilder.fromRequestUri(request).toUriString();
+		String currentUrl = request.getRequestURI();
+		if (request.getQueryString() != null) currentUrl += "?" + request.getQueryString();
 		model.addAttribute("currentUrl", currentUrl); // Makes current URL available in all templates
 		model.addAttribute("token", session.getAttribute(TOKEN_ATTRIBUTE)); // Per-session token
 	}
@@ -114,7 +116,7 @@ public class WebClientController {
 	public String showLoginPage(@RequestParam(value = "redirectUrl", required = false) String redirection,
 								Model model) {
 		// Add redirectUrl to the model if needed
-		model.addAttribute("redirectUrl", redirection);
+		model.addAttribute("redirectUrl", safeRedirect(redirection));
 
 		return "login"; // Return your login template
 	}
@@ -132,9 +134,10 @@ public class WebClientController {
 			session.setAttribute(TOKEN_ATTRIBUTE, token); // Store the token in the user's session
 
 			// Redirect to the original page or root if redirectUrl is null
-			return "redirect:" + (redirection != null && !redirection.isEmpty() ? redirection : "/");
+			return "redirect:" + safeRedirect(redirection);
 		} catch (RuntimeException e) {
 			model.addAttribute("errorMessage", "Login failed: " + e.getMessage());
+			model.addAttribute("redirectUrl", safeRedirect(redirection));
 			return "login"; // Return to login page with error message
 		}
 	}
@@ -142,17 +145,19 @@ public class WebClientController {
 	@GetMapping("/logout")
 	public String performLogout(@RequestParam(value = "redirectUrl", defaultValue = "/") String redirection,
 								HttpSession session,
-								Model model) {
+								RedirectAttributes redirectAttributes) {
 		try {
-			auctionsServiceProxy.logout((String) session.getAttribute(TOKEN_ATTRIBUTE));
-			session.removeAttribute(TOKEN_ATTRIBUTE); // Clear the token from the session after logout
-			model.addAttribute("successMessage", "Logout successful.");
+			String token = (String) session.getAttribute(TOKEN_ATTRIBUTE);
+			if (token != null) auctionsServiceProxy.logout(token);
+			redirectAttributes.addFlashAttribute("successMessage", "Logout successful.");
 		} catch (RuntimeException e) {
-			model.addAttribute("errorMessage", "Logout failed: " + e.getMessage());
+			redirectAttributes.addFlashAttribute("errorMessage", "Logout failed: " + e.getMessage());
+		} finally {
+			session.removeAttribute(TOKEN_ATTRIBUTE);
 		}
 
 		// Redirect to the specified URL after logout
-		return "redirect:" + redirection;
+		return "redirect:" + safeRedirect(redirection);
 	}
 
 	@GetMapping("/category/{name}")
@@ -213,6 +218,21 @@ public class WebClientController {
 			redirectAttributes.addFlashAttribute("errorMessage", "Failed to place bid: " + e.getMessage());
 		}
 
-		return "redirect:/article/" + productId + "?currency=" + selectedCurrency;
+		return "redirect:" + UriComponentsBuilder.fromPath("/article/" + productId)
+				.queryParam("currency", selectedCurrency).build().encode().toUriString();
+	}
+
+	// Only allow local paths; redirect parameters must never send users to another site.
+	private static String safeRedirect(String target) {
+		if (target == null || !target.startsWith("/") || target.startsWith("//")
+				|| target.contains("\\") || target.chars().anyMatch(Character::isISOControl)) return "/";
+		try {
+			URI uri = URI.create(target);
+			String path = uri.getPath();
+			if (uri.isAbsolute() || uri.getRawAuthority() != null || path == null
+					|| path.startsWith("//") || path.contains("\\")
+					|| path.chars().anyMatch(Character::isISOControl)) return "/";
+			return target;
+		} catch (IllegalArgumentException exception) { return "/"; }
 	}
 }
