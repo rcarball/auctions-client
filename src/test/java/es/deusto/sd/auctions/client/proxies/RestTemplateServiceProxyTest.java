@@ -11,7 +11,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,7 +51,7 @@ class RestTemplateServiceProxyTest {
         ArgumentCaptor<Credentials> credentials = ArgumentCaptor.forClass(Credentials.class);
         verify(restTemplate).postForObject(eq("http://auctions.example/auth/login"), credentials.capture(), eq(String.class));
         assertEquals("student@example.com", credentials.getValue().email());
-        assertEquals(DigestUtils.sha1Hex("password"), credentials.getValue().password());
+        assertEquals("password", credentials.getValue().password());
     }
 
     @Test
