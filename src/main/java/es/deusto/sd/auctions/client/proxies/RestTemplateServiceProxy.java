@@ -9,7 +9,6 @@ import java.util.List;
 import java.net.URI;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -65,10 +64,8 @@ public class RestTemplateServiceProxy implements IAuctionsServiceProxy{
     public String login(Credentials credentials) {
         String url = apiBaseUrl + "/auth/login";
 
-        // Hash the password with SHA-1 before sending it. The password never travels
-        // in clear text; the server hashes it again before storing it.
         Credentials hashedCredentials = new Credentials(
-                credentials.email(), DigestUtils.sha1Hex(credentials.password()));
+                credentials.email(), credentials.password());
 
         try {
             return restTemplate.postForObject(url, hashedCredentials, String.class);

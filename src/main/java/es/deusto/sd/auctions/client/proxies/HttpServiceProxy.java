@@ -15,8 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.time.Duration;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
@@ -68,10 +66,8 @@ public class HttpServiceProxy implements IAuctionsServiceProxy {
     @Override
     public String login(Credentials credentials) {
         try {
-            // Hash the password with SHA-1 before sending it. The password never travels
-            // in clear text; the server hashes it again before storing it.
             Credentials hashedCredentials = new Credentials(
-                    credentials.email(), DigestUtils.sha1Hex(credentials.password()));
+                    credentials.email(), credentials.password());
             String credentialsJson = objectMapper.writeValueAsString(hashedCredentials);
 
             HttpRequest request = HttpRequest.newBuilder().timeout(Duration.ofSeconds(5))
