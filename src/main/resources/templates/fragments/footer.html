@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <footer th:fragment="footer" class="bg-body-tertiary border-top" style="padding: 15px;">
+		<div class="d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+
+            <!-- Left: Universidad de Deusto -->
+            <div class="flex-shrink-0 text-center text-md-start">
+                <a href="https://www.deusto.es" target="_blank" rel="noopener noreferrer"
+                   class="text-decoration-none d-inline-flex align-items-center gap-2 border rounded-3 px-2 py-1 bg-body shadow-sm">
+                    <img src="https://graph.facebook.com/udeusto/picture?type=large"
+                         alt="Universidad de Deusto"
+                         onerror="this.src='https://unavatar.io/instagram/udeusto'"
+                         style="height: 32px; width: 32px; object-fit: cover; border-radius: 6px;">
+                    <div class="lh-sm text-start">
+                        <span class="d-block text-body" style="font-size: 11px;">Universidad de Deusto</span>
+                        <span class="d-block text-body" style="font-size: 11px;">Deustuko Unibertsitatea</span>
+                    </div>
+                </a>
+                <div class="mt-1">
+                    <a href="https://www.deusto.es" target="_blank" rel="noopener noreferrer"
+                       class="text-body-secondary text-decoration-none" style="font-size: 10px; font-family: monospace;">
+                        <i class="fas fa-arrow-up-right-from-square" style="font-size: 8px;"></i> deusto.es
+                    </a>
+                </div>
+            </div>
+
+            <!-- Center: main text -->
+            <p class="mb-0 text-body-secondary text-center" style="font-size: 14px;">
+                <i class="fas fa-graduation-cap text-primary"></i>
+                <strong>Software Design</strong> (2026-27).
+            </p>
+
+            <!-- Right: Assisted by AI banner -->
+            <div class="flex-shrink-0 text-center text-md-end">
+                <a href="https://ai-label.org/#assisted-ai" target="_blank" rel="noopener noreferrer"
+                   class="d-block text-decoration-none">
+                    <img src="https://ai-label.org/image-pack/ai-label_banner-assisted-by-ai.svg"
+                         alt="Assisted by AI"
+                         style="height: 36px; width: auto;">
+                </a>
+                <div class="mt-1">
+                    <a href="https://ai-label.org/#assisted-ai" target="_blank" rel="noopener noreferrer"
+                       class="text-body-secondary text-decoration-none" style="font-size: 10px; font-family: monospace;">
+                        <i class="fas fa-arrow-up-right-from-square" style="font-size: 8px;"></i> ai-label.org
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+</body>
+</html>
